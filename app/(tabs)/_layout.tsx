@@ -3,49 +3,82 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Tabs } from 'expo-router';
+import { Image } from 'expo-image';
+import { Link, Slot, Tabs, usePathname } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const isWeb = Platform.OS === 'web';
+  const pathname = usePathname();
 
+  if (isWeb) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#18181b' }}>
+        {/* Header web */}
+        <View className="w-full flex flex-row items-center justify-between px-8 py-4 bg-neutral-900">
+          <View className="flex flex-row items-center gap-4">
+            <Image source={{uri: 'https://ui-avatars.com/api/?name=App'}} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#fff' }} />
+            <Text className="text-white text-lg font-bold">Nombre de la App</Text>
+          </View>
+          <View className="flex flex-row gap-8">
+            <Link href="/(tabs)" asChild>
+              <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline' : ''}`}>Botón</Text>
+            </Link>
+            <Link href="/(tabs)/contact" asChild>
+              <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/contact' ? 'underline' : ''}`}>Contactos</Text>
+            </Link>
+            <Link href="/(tabs)/map" asChild>
+              <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/map' ? 'underline' : ''}`}>Mapa</Text>
+            </Link>
+          </View>
+        </View>
+        {/* Contenido de la pestaña activa */}
+        <Slot />
+      </SafeAreaView>
+    );
+  }
+
+  // Móvil: tabs abajo
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: 'Map',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="contact"
-        options={{
-          title: 'Contact',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          headerShown: false,
+          tabBarButton: HapticTab,
+          tabBarBackground: TabBarBackground,
+          tabBarStyle: Platform.select({
+            ios: {
+              position: 'absolute',
+            },
+            default: {},
+          }),
+        }}>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />, 
+          }}
+        />
+        <Tabs.Screen
+          name="map"
+          options={{
+            title: 'Map',
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />, 
+          }}
+        />
+        <Tabs.Screen
+          name="contact"
+          options={{
+            title: 'Contact',
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />, 
+          }}
+        />
+      </Tabs>
+    </SafeAreaView>
   );
 }

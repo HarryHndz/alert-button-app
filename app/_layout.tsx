@@ -20,9 +20,9 @@ export default function RootLayout() {
       <GluestackUIProvider mode={colorScheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-          <Stack.Screen name="register" />
-          <Stack.Screen name="login" />
+          <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
+          <Stack.Screen name="register" options={{ title: 'Registrate' }} />
+          <Stack.Screen name="login" options={{ title: 'Iniciar sesión' }} />
         </Stack>
         <StatusBar style="auto" />
       </GluestackUIProvider>
