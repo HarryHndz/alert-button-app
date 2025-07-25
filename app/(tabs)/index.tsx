@@ -1,4 +1,5 @@
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
 export default function HomeScreen() {
   return (
@@ -13,6 +14,9 @@ export default function HomeScreen() {
       className="w-64">
         <TextareaInput placeholder="Enter your text here" />
       </Textarea>
+    <Link href='/login'>
+      Ir a la página de inicio
+    </Link>
    </View>
   )
 }

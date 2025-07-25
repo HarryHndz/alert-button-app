@@ -22,7 +22,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
           <Stack.Screen name="register" />
-          <Stack.Screen name="index" />
+          <Stack.Screen name="login" />
         </Stack>
         <StatusBar style="auto" />
       </GluestackUIProvider>
