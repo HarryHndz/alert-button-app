@@ -1,15 +1,16 @@
 import { Box } from '@/components/ui/box'
-import { Button, ButtonText } from '@/components/ui/button'
+import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
 import { FormControl } from '@/components/ui/form-control'
 import { EyeIcon, EyeOffIcon, MailIcon, UnlockIcon } from '@/components/ui/icon'
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input'
 import { ILogin } from '@/data/ILogin'
+import { loginService } from '@/service/authService'
 import { loginValidation } from '@/validation/loginValidation'
-import { Link } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { useFormik } from 'formik'
 import { useState } from 'react'
-import { Text } from 'react-native'
+import { Alert, Text } from 'react-native'
 
 export default function Index() {
   const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -18,11 +19,18 @@ export default function Index() {
     password:'',
   }
 
-  const {handleSubmit,values,errors,handleChange,handleBlur} = useFormik({
+  const {handleSubmit,values,errors,handleChange,handleBlur,isSubmitting,touched} = useFormik({
     initialValues,
     validationSchema:loginValidation(),
     onSubmit:async(values)=>{
-      console.log(values)
+      try {
+        const response = await loginService(values)
+        if (response) {
+          return router.replace('/(tabs)')
+        }
+      } catch (error) {
+        Alert.alert('Error',`${error}`)
+      }
     }
   })
   return (
@@ -31,28 +39,56 @@ export default function Index() {
         <FormControl>
           <Box className='mb-4'>
             <Text className='text-white pb-2'>Correo</Text>
-            <Input variant='outline' size='lg'>
+            <Input variant='outline' size='lg' isInvalid={!!errors.email && touched.email}>
             <InputSlot className='pl-3'>
               <InputIcon as={MailIcon}/>
             </InputSlot>
-            <InputField placeholder='Ingrese su correo' />
+            <InputField 
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              placeholder='Ingrese su correo' />
             </Input>
+            {
+              errors.email && touched.email && (
+                <Text className='text-red-500'>{errors.email}</Text>
+              )
+            }
           </Box>
           <Box className='mb-4'>
             <Text className='text-white pb-2'>Contraseña</Text>
-            <Input variant='outline' size='lg'>
-            <InputSlot className='pl-3'>
-              <InputIcon as={UnlockIcon}/>
-            </InputSlot>
-            <InputField type={showPassword ? 'text' : 'password'} placeholder='Ingrese su contraseña' />
-            <InputSlot className='pr-3' onPress={()=>setShowPassword(!showPassword)}>
-              <InputIcon as={showPassword ? EyeIcon : EyeOffIcon}/>
-            </InputSlot>
+            <Input variant='outline' size='lg' isInvalid={!!errors.password && touched.password}>
+              <InputSlot className='pl-3'>
+                <InputIcon as={UnlockIcon}/>
+              </InputSlot>
+              <InputField 
+              value={values.password}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              
+              type={showPassword ? 'text' : 'password'} placeholder='Ingrese su contraseña' />
+              <InputSlot className='pr-3' onPress={()=>setShowPassword(!showPassword)}>
+                <InputIcon as={showPassword ? EyeIcon : EyeOffIcon}/>
+              </InputSlot>
             </Input>
+            {
+              errors.password && touched.password && (
+                <Text className='text-red-500'>{errors.password}</Text>
+              )
+            }
             <Text className='text-white py-4'>¿Olvidaste tu contraseña?</Text>
           </Box>
-          <Button className='mt-4'>
-            <ButtonText>Iniciar sesión</ButtonText>
+          <Button className='mt-4' onPress={()=>handleSubmit()} disabled={isSubmitting} >
+            {
+              isSubmitting ? (
+              <>
+                <ButtonSpinner color='black' />
+                <ButtonText>Enviando...</ButtonText>
+              </>
+              ) : (
+                <ButtonText>Iniciar sesión</ButtonText>
+              )
+            }
           </Button>
         </FormControl>
         <Divider className='my-4' />
