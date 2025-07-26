@@ -2,7 +2,6 @@ import { SearchIcon } from '@/components/ui/icon'
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input'
 import React from 'react'
 import { View } from 'react-native'
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
 
 
 export default function Map() {
@@ -14,13 +13,6 @@ export default function Map() {
         </InputSlot>
         <InputField placeholder='Buscar...' />
       </Input>
-      <MapView 
-        provider={PROVIDER_GOOGLE}
-        style={{
-          width: '100%',
-          height: '100%',
-        }}
-      />
     </View>
   )
 }

@@ -4,11 +4,49 @@ import { FormControl } from '@/components/ui/form-control';
 import { MailIcon, UnlockIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Image } from 'expo-image';
+import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { ScrollView, Text } from 'react-native';
+import { registerUser } from '../service/userService';
+import { RegisterData, registerSchema } from '../validation/validation';
+
+const initialValues: RegisterData = {
+  email: '',
+  name: '',
+  last_name: '',
+  phone_number: '',
+  password: '',
+};
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const formik = useFormik({
+    initialValues,
+    validationSchema: registerSchema,
+    onSubmit: async (values) => {
+      setApiError('');
+      setLoading(true);
+      try {
+        await registerUser(values);
+        formik.resetForm();
+        setApiError('');
+        alert('¡Registro exitoso!');
+      } catch (err: any) {
+        if (err.response && err.response.data && err.response.data.message) {
+          console.log("aaa", err)
+          setApiError(err.response.data.message);
+        } else {
+          setApiError('Ocurrió un error inesperado.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
   return (
     <Box className="flex-1 flex flex-col md:flex-row w-full h-screen md:gap-x-12">
       {/* Imagen a la izquierda */}
@@ -23,6 +61,9 @@ export default function Register() {
         >
           <Box className="flex flex-col p-8 w-full md:max-w-xl md:mx-auto">
             <Text className="text-2xl font-bold text-white mb-6 text-center">Registrarse</Text>
+            {apiError ? (
+              <Text className="text-red-500 text-center mb-4">{apiError}</Text>
+            ) : null}
             <FormControl>
               <Box className="flex flex-col gap-4 w-full">
                 <Box className="w-full">
@@ -31,32 +72,62 @@ export default function Register() {
                     <InputSlot>
                       <InputIcon as={MailIcon} />
                     </InputSlot>
-                    <InputField placeholder="Ingrese su correo" />
+                    <InputField
+                      placeholder="Ingrese su correo"
+                      value={formik.values.email}
+                      onChangeText={formik.handleChange('email')}
+                      onBlur={formik.handleBlur('email')}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                    />
                   </Input>
+                  {formik.touched.email && formik.errors.email && (
+                    <Text className="text-red-500 text-xs mt-1">{formik.errors.email}</Text>
+                  )}
                 </Box>
                 <Box className="w-full">
                   <Text className="text-white mb-1">Nombre</Text>
                   <Input>
-                    <InputField placeholder="Ingrese su nombre" />
+                    <InputField
+                      placeholder="Ingrese su nombre"
+                      value={formik.values.name}
+                      onChangeText={formik.handleChange('name')}
+                      onBlur={formik.handleBlur('name')}
+                    />
                   </Input>
+                  {formik.touched.name && formik.errors.name && (
+                    <Text className="text-red-500 text-xs mt-1">{formik.errors.name}</Text>
+                  )}
                 </Box>
                 <Box className="w-full">
-                  <Text className="text-white mb-1">Apellido paterno</Text>
+                  <Text className="text-white mb-1">Apellidos</Text>
                   <Input>
-                    <InputField placeholder="Ingrese su apellido paterno" />
+                    <InputField
+                      placeholder="Ingrese su apellido"
+                      value={formik.values.last_name}
+                      onChangeText={formik.handleChange('last_name')}
+                      onBlur={formik.handleBlur('last_name')}
+                    />
                   </Input>
+                  {formik.touched.last_name && formik.errors.last_name && (
+                    <Text className="text-red-500 text-xs mt-1">{formik.errors.last_name}</Text>
+                  )}
                 </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Apellido materno</Text>
-                  <Input>
-                    <InputField placeholder="Ingrese su apellido materno" />
-                  </Input>
-                </Box>
+
                 <Box className="w-full">
                   <Text className="text-white mb-1">Teléfono</Text>
                   <Input>
-                    <InputField placeholder="Ingrese su teléfono" />
+                    <InputField
+                      placeholder="Ingrese su teléfono"
+                      value={formik.values.phone_number}
+                      onChangeText={formik.handleChange('phone_number')}
+                      onBlur={formik.handleBlur('phone_number')}
+                      keyboardType="phone-pad"
+                    />
                   </Input>
+                  {formik.touched.phone_number && formik.errors.phone_number && (
+                    <Text className="text-red-500 text-xs mt-1">{formik.errors.phone_number}</Text>
+                  )}
                 </Box>
                 <Box className="w-full">
                   <Text className="text-white mb-1">Contraseña</Text>
@@ -64,35 +135,22 @@ export default function Register() {
                     <InputSlot>
                       <InputIcon as={UnlockIcon} />
                     </InputSlot>
-                    <InputField type={showPassword ? 'text' : 'password'} placeholder="Ingrese su contraseña" />
+                    <InputField
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Ingrese su contraseña"
+                      value={formik.values.password}
+                      onChangeText={formik.handleChange('password')}
+                      onBlur={formik.handleBlur('password')}
+                      secureTextEntry={!showPassword}
+                    />
                   </Input>
+                  {formik.touched.password && formik.errors.password && (
+                    <Text className="text-red-500 text-xs mt-1">{formik.errors.password}</Text>
+                  )}
                 </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Dirección</Text>
-                  <Input>
-                    <InputField placeholder="Ingrese su dirección" />
-                  </Input>
-                </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Código postal</Text>
-                  <Input>
-                    <InputField placeholder="Ingrese su código postal" />
-                  </Input>
-                </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Ciudad</Text>
-                  <Input>
-                    <InputField placeholder="Ingrese su ciudad" />
-                  </Input>
-                </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Estado</Text>
-                  <Input>
-                    <InputField placeholder="Ingrese su estado" />
-                  </Input>
-                </Box>
-                <Button className="mt-8 w-full">
-                  <ButtonText>Registrarse</ButtonText>
+                
+                <Button className="mt-8 w-full" onPress={() => formik.handleSubmit()} disabled={loading}>
+                  <ButtonText>{loading ? 'Registrando...' : 'Registrarse'}</ButtonText>
                 </Button>
               </Box>
             </FormControl>

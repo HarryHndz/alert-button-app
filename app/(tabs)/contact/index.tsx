@@ -4,6 +4,7 @@ import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { IContact } from '@/data/IContact';
 import { getContacts } from '@/service/contactService';
+import { Link } from 'expo-router';
 import { PlusIcon } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text } from 'react-native';
@@ -49,8 +50,11 @@ export default function TabTwoScreen() {
           </InputSlot>
           <InputField placeholder='Buscar...' />
         </Input>
+        
         <Pressable className='w-1/6 bg-blue-950 rounded-lg items-center justify-center'>
-          <PlusIcon color='white' />
+          <Link href='/(tabs)/contact/addContact'>
+            <PlusIcon color='white' />
+          </Link>
         </Pressable>
       </Box>
       <Box className='flex flex-col gap-5 mt-5 px-5'>
