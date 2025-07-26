@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Image } from 'expo-image';
+import { Link } from 'expo-router';
 import { PlusIcon, TrashIcon } from 'lucide-react-native';
 import { Pressable, Text } from 'react-native';
 export default function TabTwoScreen() {
@@ -17,8 +18,11 @@ export default function TabTwoScreen() {
           </InputSlot>
           <InputField placeholder='Buscar...' />
         </Input>
+        
         <Pressable className='w-1/6 bg-blue-950 rounded-lg items-center justify-center'>
-          <PlusIcon color='white' />
+          <Link href='/(tabs)/contact/addContact'>
+            <PlusIcon color='white' />
+          </Link>
         </Pressable>
       </Box>
       <Box className='flex flex-col gap-5 mt-5 px-5'>

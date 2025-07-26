@@ -1,5 +1,5 @@
+import type { RegisterData } from '../validation/validation';
 import api from './api';
-import type { RegisterData } from './validation';
 
 export const registerUser = async (data: RegisterData) => {
   const response = await api.post('users', data);

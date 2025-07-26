@@ -8,7 +8,7 @@ import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { registerUser } from '../service/userService';
-import { RegisterData, registerSchema } from '../service/validation';
+import { RegisterData, registerSchema } from '../validation/validation';
 
 const initialValues: RegisterData = {
   email: '',

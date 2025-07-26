@@ -13,28 +13,32 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isWeb = Platform.OS === 'web';
   const pathname = usePathname();
+  const isAddContact = pathname.includes('addContact');
+  const isContactTab = pathname.includes('contact');
 
   if (isWeb) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#18181b' }}>
-        {/* Header web */}
-        <View className="w-full flex flex-row items-center justify-between px-8 py-4 bg-neutral-900">
-          <View className="flex flex-row items-center gap-4">
-            <Image source={{uri: 'https://ui-avatars.com/api/?name=App'}} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#fff' }} />
-            <Text className="text-white text-lg font-bold">Nombre de la App</Text>
+        {/* Header web - solo mostrar si NO está en addContact */}
+        {!isAddContact && (
+          <View className="w-full flex flex-row items-center justify-between px-8 py-4 bg-neutral-900">
+            <View className="flex flex-row items-center gap-4">
+              <Image source={{uri: 'https://ui-avatars.com/api/?name=App'}} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#fff' }} />
+              <Text className="text-white text-lg font-bold">Nombre de la App</Text>
+            </View>
+            <View className="flex flex-row gap-8">
+              <Link href="/(tabs)" asChild>
+                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
+              </Link>
+              <Link href="/(tabs)/contact" asChild>
+                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/contact' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Contactos</Text>
+              </Link>
+              <Link href="/(tabs)/map" asChild>
+                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/map' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Mapa</Text>
+              </Link>
+            </View>
           </View>
-          <View className="flex flex-row gap-8">
-            <Link href="/(tabs)" asChild>
-              <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline' : ''}`}>Botón</Text>
-            </Link>
-            <Link href="/(tabs)/contact" asChild>
-              <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/contact' ? 'underline' : ''}`}>Contactos</Text>
-            </Link>
-            <Link href="/(tabs)/map" asChild>
-              <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/map' ? 'underline' : ''}`}>Mapa</Text>
-            </Link>
-          </View>
-        </View>
+        )}
         {/* Contenido de la pestaña activa */}
         <Slot />
       </SafeAreaView>
@@ -43,19 +47,17 @@ export default function TabLayout() {
 
   // Móvil: tabs abajo
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
-          tabBarStyle: Platform.select({
-            ios: {
-              position: 'absolute',
-            },
-            default: {},
-          }),
+          // Eliminar position absolute para evitar conflictos con Stack
+          tabBarStyle: {
+            backgroundColor: 'transparent'
+          }
         }}>
         <Tabs.Screen
           name="index"
@@ -75,10 +77,11 @@ export default function TabLayout() {
           name="contact"
           options={{
             title: 'Contact',
+            headerShown: false,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />, 
           }}
         />
       </Tabs>
-    </SafeAreaView>
+    </View>
   );
 }
