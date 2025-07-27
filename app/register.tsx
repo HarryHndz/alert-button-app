@@ -1,5 +1,5 @@
 import { Box } from '@/components/ui/box';
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
 import { EyeIcon, EyeOffIcon, MailIcon, UnlockIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
@@ -153,7 +153,18 @@ export default function Register() {
                 </Box>
                 
                 <Button className="mt-8 w-full" onPress={() => formik.handleSubmit()} disabled={loading}>
-                  <ButtonText>{loading ? 'Registrando...' : 'Registrarse'}</ButtonText>
+                  {
+                    loading ? (
+                      <>
+                        <ButtonSpinner color='black' />
+                        <ButtonText>Registrando...</ButtonText>
+                      </>
+                    ) : (
+                      <>
+                        <ButtonText>Registrarse</ButtonText>
+                      </>
+                    )
+                  }
                 </Button>
               </Box>
             </FormControl>

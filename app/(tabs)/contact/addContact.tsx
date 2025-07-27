@@ -1,5 +1,5 @@
 import { Box } from '@/components/ui/box';
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
 import { PhoneIcon } from '@/components/ui/icon'; // usa tus iconos definidos
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
@@ -150,7 +150,18 @@ export default function AddContact() {
             onPress={() => formik.handleSubmit()}
             disabled={loading}
           >
-            <ButtonText>{loading ? 'Guardando...' : 'Guardar'}</ButtonText>
+            {
+              loading ? (
+                <>
+                  <ButtonSpinner color='black' />
+                  <ButtonText>Guardando...</ButtonText>
+                </>
+              ) : (
+                <>
+                  <ButtonText>Guardar</ButtonText>
+                </>
+              )
+            }
           </Button>
         </Box>
       </FormControl>

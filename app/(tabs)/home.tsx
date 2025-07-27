@@ -1,4 +1,8 @@
 import { Box } from '@/components/ui/box';
+import { ButtonSpinner } from '@/components/ui/button';
+import { IContact } from '@/data/IContact';
+import { getContacts } from '@/service/contactService';
+import LocalStorage from '@/utils/storage';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, Text } from 'react-native';
@@ -6,6 +10,7 @@ import { Platform, Pressable, Text } from 'react-native';
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [contacts, setContacts] = useState<IContact[]>([])
 
   const getLocation = async () => {
     try {
@@ -29,8 +34,21 @@ export default function HomeScreen() {
     console.log('Before')
     getLocation();
     console.log('After');
+    const fetchContacts = async()=>{
+      try {
+        const storage = new LocalStorage()
+        const session = await storage.getSession()
+        if (!session) return 
+        const contacts = await getContacts(session.token,session.id)
+        setContacts(contacts)
+      } catch (error) {
+        console.log('error',error)
+      }
+    }
+    fetchContacts()
   }, []);
 
+    
 
   return (
     <Box className="flex-1 bg-neutral-900 w-full h-full justify-center items-center">
@@ -61,7 +79,13 @@ export default function HomeScreen() {
           </Pressable>
         </Box>
         <Text className="text-neutral-400 text-center mt-8 mb-2">
-          2 contactos guardados
+          {
+            contacts ? (
+              contacts.length + ' Contactos guardados'
+            ) : (
+              'No hay contactos registrados'
+            )
+          }
         </Text>
         {errorMsg ? (
           <Text className="text-red-500 text-center mb-4">{errorMsg}</Text>
@@ -71,7 +95,10 @@ export default function HomeScreen() {
             <Text className="text-neutral-600 text-center text-xs">Longitud: {location.coords.longitude}</Text>
           </>
         ) : (
-          <Text>Obteniendo ubicación...</Text>
+          <>
+            <ButtonSpinner color='black' />
+            <Text>Obteniendo ubicación...</Text>
+          </>
         )}
       </Box>
     </Box>
