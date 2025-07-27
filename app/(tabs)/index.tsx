@@ -2,11 +2,39 @@ import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { useVerifySession } from '@/hooks/useVerifySession';
 import LocalStorage from '@/service/localStorage';
+import * as Location from 'expo-location';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
 export default function HomeScreen() {
   const {isLoading} = useVerifySession()
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const getLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permiso denegado para acceder a la ubicación');
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc);
+    } catch (error) {
+      console.error(error);
+      setErrorMsg('Error al obtener la ubicación');
+    }
+  };
+
+  console.log(errorMsg)
+
+  useEffect(() => {
+    console.log('Before')
+    getLocation();
+    console.log('After');
+  }, []);
 
   const handleLogout = async()=>{
     try {
@@ -49,16 +77,23 @@ export default function HomeScreen() {
               shadowRadius: 16,
               elevation: 12,
             }}
-            onPress={() => {}}>
+            onPress={() => { console.log('Send map')}}>
             <Text className="text-white text-2xl md:text-3xl font-semibold">Presionar</Text>
           </Pressable>
         </Box>
         <Text className="text-neutral-400 text-center mt-8 mb-2">
           2 contactos guardados
         </Text>
-        <Text className="text-neutral-600 text-center text-xs">
-          Ubicación: 17.457834, -92.453267
-        </Text>
+        {errorMsg ? (
+          <Text className="text-red-500 text-center mb-4">{errorMsg}</Text>
+        ) : location ? (
+          <>
+            <Text className="text-neutral-600 text-center text-xs">Latitud: {location.coords.latitude}</Text>
+            <Text className="text-neutral-600 text-center text-xs">Longitud: {location.coords.longitude}</Text>
+          </>
+        ) : (
+          <Text>Obteniendo ubicación...</Text>
+        )}
         <Button onPress={handleLogout} className='bg-red-500'>
           <ButtonText>Cerrar sesión</ButtonText>
         </Button>
