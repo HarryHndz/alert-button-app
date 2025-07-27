@@ -1,8 +1,30 @@
 import { Box } from '@/components/ui/box';
-import { Link } from 'expo-router';
-import { Platform, Pressable, Text } from 'react-native';
+import { Button, ButtonText } from '@/components/ui/button';
+import { useVerifySession } from '@/hooks/useVerifySession';
+import LocalStorage from '@/service/localStorage';
+import { router } from 'expo-router';
+import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
 export default function HomeScreen() {
+  const {isLoading} = useVerifySession()
+
+  const handleLogout = async()=>{
+    try {
+      const storage = new LocalStorage()
+      await storage.removeSession()
+      return router.replace('/login')
+    } catch (error) {
+      console.log('error',error)
+    }
+  }
+  if (isLoading) {
+    return(
+      <Box className='flex-1 items-center justify-center'>
+        <ActivityIndicator size='large' color='white' />
+      </Box>
+    )
+  }
+
   return (
     <Box className="flex-1 bg-neutral-900 w-full h-full justify-center items-center">
       <Box className="flex-1 w-full flex flex-col justify-center items-center">
@@ -37,10 +59,10 @@ export default function HomeScreen() {
         <Text className="text-neutral-600 text-center text-xs">
           Ubicación: 17.457834, -92.453267
         </Text>
+        <Button onPress={handleLogout} className='bg-red-500'>
+          <ButtonText>Cerrar sesión</ButtonText>
+        </Button>
       </Box>
-      <Link href='/login' className='text-white text-center text-sm'>
-        Ir a la página de inicio
-      </Link>
     </Box>
   );
 }

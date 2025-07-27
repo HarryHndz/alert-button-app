@@ -4,6 +4,7 @@ import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { IContact } from '@/data/IContact';
 import { getContacts } from '@/service/contactService';
+import LocalStorage from '@/service/localStorage';
 import { Link } from 'expo-router';
 import { PlusIcon } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -18,10 +19,13 @@ export default function TabTwoScreen() {
     const fetchContacts = async()=>{
       try {
         setIsLoading(true)
-        const contacts = await getContacts('')
+        const storage = new LocalStorage()
+        const session = await storage.getSession()
+        if (!session) return 
+        const contacts = await getContacts(session.token,session.id)
         setContacts(contacts)
       } catch (error) {
-        console.log(error)
+        console.log('error',error)
       } finally {
         setIsLoading(false)
       }

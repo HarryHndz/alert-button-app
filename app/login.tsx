@@ -6,6 +6,7 @@ import { EyeIcon, EyeOffIcon, MailIcon, UnlockIcon } from '@/components/ui/icon'
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input'
 import { ILogin } from '@/data/ILogin'
 import { loginService } from '@/service/authService'
+import LocalStorage from '@/service/localStorage'
 import { loginValidation } from '@/validation/loginValidation'
 import { Link, router } from 'expo-router'
 import { useFormik } from 'formik'
@@ -18,21 +19,32 @@ export default function Index() {
     email:'',
     password:'',
   }
+  const handleLogin = async (values:ILogin)=>{
+    try {
+      const response = await loginService(values)
+      if (response) {
+        const storage = new LocalStorage()
+        await storage.setSession(response)
+        return router.replace('/(tabs)')
+      }
+    } catch (error) {
+      Alert.alert('Error',`${error}`)
+    }
+  }
 
-  const {handleSubmit,values,errors,handleChange,handleBlur,isSubmitting,touched} = useFormik({
+  const {
+    handleSubmit,
+    values,errors,
+    handleChange,
+    handleBlur,isSubmitting,
+    touched
+  } = useFormik({
     initialValues,
     validationSchema:loginValidation(),
-    onSubmit:async(values)=>{
-      try {
-        const response = await loginService(values)
-        if (response) {
-          return router.replace('/(tabs)')
-        }
-      } catch (error) {
-        Alert.alert('Error',`${error}`)
-      }
-    }
+    onSubmit:handleLogin
   })
+
+  
   return (
     <Box className='flex-1 justify-end w-full h-full'>
       <Box className='flex flex-col p-8 w-full h-3/4 bg-neutral-900 rounded-t-xl gap-3'>

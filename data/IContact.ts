@@ -5,4 +5,5 @@ export interface IContact {
   phone:string,
   relationship:string,
   userId:number,
+  active:boolean
 }
