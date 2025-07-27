@@ -31,3 +31,19 @@ export const loginService = async(dataAuth:ILogin):Promise<IUser>=>{
     throw 'Error al iniciar sesión'
   }
 }
+
+export const logoutService = async(token:string):Promise<void>=>{
+  try {
+    await api.post('/auth/logout',{},{
+      headers:{
+        Authorization: `Bearer ${token}`
+      }
+    })
+  } catch (error) {
+    if(error instanceof AxiosError){
+      console.log(error.response?.data)
+      throw error.response?.data.message ?? 'Error al cerrar sesión'
+    }
+    throw 'Error al cerrar sesión'
+  }
+}

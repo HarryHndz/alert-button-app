@@ -1,13 +1,17 @@
 import { HapticTab } from '@/components/HapticTab';
+import { HeaderMenu } from '@/components/HeaderMenu';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { logoutService } from '@/service/authService';
+import LocalStorage from '@/utils/storage';
 import { Image } from 'expo-image';
-import { Link, Slot, Tabs, usePathname } from 'expo-router';
+import { Link, router, Slot, Tabs, usePathname } from 'expo-router';
 import React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -15,6 +19,19 @@ export default function TabLayout() {
   const pathname = usePathname();
   const isAddContact = pathname.includes('addContact');
   const isContactTab = pathname.includes('contact');
+
+  const handleLogout = async()=>{
+    try {
+      const storage = new LocalStorage()
+      const session = await storage.getSession()
+      if(!session) return
+      await logoutService(session.token)
+      await storage.removeSession()
+      return router.replace('/')
+    } catch (error) {
+      console.log('error',error)
+    }
+  }
 
   if (isWeb) {
     return (
@@ -27,7 +44,7 @@ export default function TabLayout() {
               <Text className="text-white text-lg font-bold">Nombre de la App</Text>
             </View>
             <View className="flex flex-row gap-8">
-              <Link href="/(tabs)" asChild>
+              <Link href="/(tabs)/home" asChild>
                 <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
               </Link>
               <Link href="/(tabs)/contact" asChild>
@@ -37,6 +54,8 @@ export default function TabLayout() {
                 <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/map' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Mapa</Text>
               </Link>
             </View>
+            <HeaderMenu handleLogout={handleLogout}/>
+            
           </View>
         )}
         {/* Contenido de la pestaña activa */}
@@ -58,12 +77,15 @@ export default function TabLayout() {
           tabBarStyle: {
             backgroundColor: 'transparent'
           }
+          
         }}>
         <Tabs.Screen
-          name="index"
+          name="home"
           options={{
             title: 'Home',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />, 
+            headerShown:true,
+            header:(e)=><HeaderMenu handleLogout={handleLogout}/>
           }}
         />
         <Tabs.Screen
@@ -71,14 +93,17 @@ export default function TabLayout() {
           options={{
             title: 'Map',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />, 
+            headerShown:true,
+            header:(e)=><HeaderMenu handleLogout={handleLogout}/>
           }}
         />
         <Tabs.Screen
           name="contact"
           options={{
             title: 'Contact',
-            headerShown: false,
+            headerShown: true,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />, 
+            header:(e)=><HeaderMenu handleLogout={handleLogout}/>
           }}
         />
       </Tabs>

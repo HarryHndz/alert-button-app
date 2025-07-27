@@ -1,7 +1,7 @@
 import { IAddContact, IResUser } from '@/data/IUser';
-import type { RegisterData } from '../validation/validation';
-import api from './api';
-import LocalStorage from './localStorage';
+import api from '@/service/api';
+import LocalStorage from '@/utils/storage';
+import type { RegisterData } from '@/validation/validation';
 
 export const registerUser = async (data: RegisterData): Promise<IResUser> => {
   const response = await api.post('auth/signup', data);

@@ -4,7 +4,7 @@ import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { IContact } from '@/data/IContact';
 import { getContacts } from '@/service/contactService';
-import LocalStorage from '@/service/localStorage';
+import LocalStorage from '@/utils/storage';
 import { Link } from 'expo-router';
 import { PlusIcon } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -46,7 +46,7 @@ export default function TabTwoScreen() {
   return (
     <Box className='flex-1 pt-10'>
       <Text className='text-white text-2xl font-bold pl-5'>Contactos de emergencia</Text>
-      <Text className='text-white text-sm pl-5'> 2 contactos registrados</Text>
+      <Text className='text-white text-sm pl-5'>{contacts.length} contactos registrados</Text>
       <Box className='flex flex-row justify-between gap-2 px-5 mt-5'>
         <Input variant='outline' size='lg' className='w-5/6'>
           <InputSlot className='pl-5'>
