@@ -3,9 +3,8 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
 import { PhoneIcon } from '@/components/ui/icon'; // usa tus iconos definidos
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import { registerUser } from '@/service/userService';
-import { AddContactData } from '@/validation/addContactValidation';
-import { registerSchema } from '@/validation/validation';
+import { addContact } from '@/service/userService';
+import { AddContactData, contactSchema } from '@/validation/addContactValidation';
 import { Image } from 'expo-image';
 import { useFormik } from 'formik';
 import { useState } from 'react';
@@ -14,9 +13,8 @@ import { Platform, ScrollView, Text, useWindowDimensions } from 'react-native';
 const initialValues: AddContactData = {
   name: '',
   last_name: '',
-  email: '',
   phone_number: '',
-  password: '123456'
+  relationship: ''
 };
 
 export default function AddContact() {
@@ -28,12 +26,12 @@ export default function AddContact() {
 
   const formik = useFormik({
     initialValues,
-    validationSchema: registerSchema,
+    validationSchema: contactSchema,
     onSubmit: async (values) => {
       setApiError('');
       setLoading(true);
       try {
-        const response = await registerUser(values);
+        await addContact(values);
 
         formik.resetForm();
         setApiError('');
@@ -104,22 +102,22 @@ export default function AddContact() {
           </Box>
 
           <Box className="w-full">
-            <Text className="text-white mb-1">Correo</Text>
+            <Text className="text-white mb-1">Relación con el contacto</Text>
             <Input>
               <InputSlot>
                 <InputIcon as={PhoneIcon} />
               </InputSlot>
               <InputField
-                placeholder="Ingrese correo"
-                value={formik.values.email}
-                onChangeText={formik.handleChange('email')}
-                onBlur={formik.handleBlur('email')}
+                placeholder="Ingrese relación"
+                value={formik.values.relationship}
+                onChangeText={formik.handleChange('relationship')}
+                onBlur={formik.handleBlur('relationship')}
               />
             </Input>
-            {formik.touched.email &&
-              formik.errors.email && (
+            {formik.touched.relationship &&
+              formik.errors.relationship && (
                 <Text className="text-red-500 text-xs mt-1">
-                  {formik.errors.email}
+                  {formik.errors.relationship}
                 </Text>
               )}
           </Box>

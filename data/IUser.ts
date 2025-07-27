@@ -21,12 +21,9 @@ export interface IResUser {
 }
 
 export interface IAddContact {
-  user_id: number,
   name: string,
   last_name: string,
   phone_number: string,
   relationship: string,
-  active: boolean,
-  contact_id: number
 }
 
