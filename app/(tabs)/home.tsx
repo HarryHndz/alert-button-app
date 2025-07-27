@@ -28,8 +28,6 @@ export default function HomeScreen() {
     }
   };
 
-  console.log(errorMsg)
-
   useEffect(() => {
     console.log('Before')
     getLocation();
