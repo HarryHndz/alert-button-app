@@ -1,12 +1,48 @@
+import { CardContact } from '@/components/Contact/CardContact';
 import { Box } from '@/components/ui/box';
-import { Card } from '@/components/ui/card';
 import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import { Image } from 'expo-image';
+import { IContact } from '@/data/IContact';
+import { getContacts } from '@/service/contactService';
+import LocalStorage from '@/service/localStorage';
 import { Link } from 'expo-router';
-import { PlusIcon, TrashIcon } from 'lucide-react-native';
-import { Pressable, Text } from 'react-native';
+import { PlusIcon } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
+
+
 export default function TabTwoScreen() {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [contacts, setContacts] = useState<IContact[]>([])
+
+  useEffect(()=>{
+    const fetchContacts = async()=>{
+      try {
+        setIsLoading(true)
+        const storage = new LocalStorage()
+        const session = await storage.getSession()
+        if (!session) return 
+        const contacts = await getContacts(session.token,session.id)
+        setContacts(contacts)
+      } catch (error) {
+        console.log('error',error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchContacts()
+  },[])
+
+  if (isLoading) {
+    return(
+      <Box className='flex-1 items-center justify-center'>
+        <ActivityIndicator size='large' color='white' />
+      </Box>
+    )
+  }
+
+
   return (
     <Box className='flex-1 pt-10'>
       <Text className='text-white text-2xl font-bold pl-5'>Contactos de emergencia</Text>
@@ -26,67 +62,15 @@ export default function TabTwoScreen() {
         </Pressable>
       </Box>
       <Box className='flex flex-col gap-5 mt-5 px-5'>
-        <Card className='p-6 rounded-lg flex flex-row gap-2 w-full'>
-          <Box className='w-1/6'>
-            <Image
-              source={require('@/assets/images/react-logo.png')}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 40,
-              }}
-            />
-          </Box>
-
-          <Box className='flex flex-col gap-2 w-4/6'>
-            <Text className='text-white text-lg font-bold'>Harry Hernández</Text>
-            <Text className='text-white text-sm'>9931957426</Text>
-          </Box>
-          <Pressable className='w-1/6 bg-red-500 rounded-lg items-center justify-center'>
-            <TrashIcon color='white' />
-          </Pressable>
-        </Card>
-        <Card className='p-6 rounded-lg flex flex-row gap-2 w-full'>
-          <Box className='w-1/6'>
-            <Image
-              source={require('@/assets/images/react-logo.png')}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 40,
-              }}
-            />
-          </Box>
-
-          <Box className='flex flex-col gap-2 w-4/6'>
-            <Text className='text-white text-lg font-bold'>Harry Hernández</Text>
-            <Text className='text-white text-sm'>9931957426</Text>
-          </Box>
-          <Pressable className='w-1/6 bg-red-500 rounded-lg items-center justify-center'>
-            <TrashIcon color='white' />
-          </Pressable>
-        </Card>
-        <Card className='p-6 rounded-lg flex flex-row gap-2 w-full'>
-          <Box className='w-1/6'>
-            <Image
-              source={require('@/assets/images/react-logo.png')}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 40,
-              }}
-            />
-          </Box>
-
-          <Box className='flex flex-col gap-2 w-4/6'>
-            <Text className='text-white text-lg font-bold'>Harry Hernández</Text>
-            <Text className='text-white text-sm'>9931957426</Text>
-          </Box>
-          <Pressable className='w-1/6 bg-red-500 rounded-lg items-center justify-center'>
-            <TrashIcon color='white' />
-          </Pressable>
-        </Card>
-
+        {
+          contacts.length > 0 ? (
+            contacts.map((contact)=>(
+              <CardContact key={contact.id} contact={contact} />
+            ))
+          ) : (
+            <Text className='text-white text-center'>No hay contactos registrados</Text>
+          )
+        }
       </Box>
     </Box>
   );
