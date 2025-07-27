@@ -16,11 +16,9 @@ export const addContact = async (data: IAddContact) => {
   console.log('Data user', user)
   const response = await api.post('emergency-contacts',
     {
-      headers: {
-        Authorization:`Bearer ${user?.token}`
-      },
-      user_id: user?.id,
+      user_id: Number(user?.id),
       ...data,
+      contact_id: null
             
     }
   )
