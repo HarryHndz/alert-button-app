@@ -1,7 +1,7 @@
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
-import { MailIcon, UnlockIcon } from '@/components/ui/icon';
+import { EyeIcon, EyeOffIcon, MailIcon, UnlockIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Image } from 'expo-image';
 import { useFormik } from 'formik';
@@ -19,7 +19,7 @@ const initialValues: RegisterData = {
 };
 
 export default function Register() {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -143,6 +143,9 @@ export default function Register() {
                       onBlur={formik.handleBlur('password')}
                       secureTextEntry={!showPassword}
                     />
+                    <InputSlot className='pr-3' onPress={()=>setShowPassword(!showPassword)}>
+                      <InputIcon as={showPassword ? EyeIcon : EyeOffIcon}/>
+                    </InputSlot>
                   </Input>
                   {formik.touched.password && formik.errors.password && (
                     <Text className="text-red-500 text-xs mt-1">{formik.errors.password}</Text>
