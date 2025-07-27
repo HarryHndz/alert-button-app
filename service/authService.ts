@@ -26,7 +26,7 @@ export const loginService = async(dataAuth:ILogin):Promise<IUser>=>{
   } catch (error) {
     if(error instanceof AxiosError){
       console.log(error.response?.data)
-      throw error.response?.data.message
+      throw error.response?.data.message ?? 'Error al iniciar sesión'
     }
     throw 'Error al iniciar sesión'
   }

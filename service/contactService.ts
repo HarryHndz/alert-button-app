@@ -24,7 +24,7 @@ export const getContacts = async(token:string,userId:number):Promise<IContact[]>
   } catch (error) {
     if(error instanceof AxiosError){
       console.log(error.response?.data)
-      throw error.response?.data.message
+      throw error.response?.data.message ?? 'Error al obtener los contactos'
     }
     throw 'Error al obtener los contactos'
   }
