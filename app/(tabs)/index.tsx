@@ -19,8 +19,8 @@ if (Platform.OS !== 'web') {
 const topic = 'emergency/location';
 
 // Parámetros del broker
-const BROKER_HOST = "192.168.1.70"; // tu IP local
-const BROKER_PORT = 8083;
+const BROKER_HOST = "6.tcp.ngrok.io"; // tu IP local
+const BROKER_PORT = 15279;
 const BROKER_PATH = "/mqtt"; // path default de websockets mosquitto
 
 export default function HomeScreen() {
@@ -112,8 +112,8 @@ export default function HomeScreen() {
     if (Platform.OS === 'web') {
       // --- WEB: PAHO ---
       import('paho-mqtt').then(({ Client }) => {
-        const client = new Client(BROKER_HOST, BROKER_PORT, BROKER_PATH, "expo-web-" + Math.random());
-
+        const client = new Client(BROKER_HOST, BROKER_PORT, BROKER_PATH, "expo-client -" + Math.random());
+        console.log("cliente", client)
         client.onConnectionLost = (res) => {
           console.log('MQTT conexión perdida', res.errorMessage);
         };

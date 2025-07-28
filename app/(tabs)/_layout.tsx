@@ -4,7 +4,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { logoutService } from '@/service/authService';
 import LocalStorage from '@/utils/storage';
 import { Image } from 'expo-image';
 import { Link, router, Slot, Tabs, usePathname } from 'expo-router';
@@ -26,7 +25,7 @@ export default function TabLayout() {
       const session = await storage.getSession()
       console.log('session',session)
       if(!session) return
-      await logoutService(session.token)
+      //await logoutService(session.token)
       console.log('remove session')
       await storage.removeSession()
       return router.replace('/login')

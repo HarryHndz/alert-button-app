@@ -31,6 +31,8 @@ export const newAlert = async (data: INewAlert) => {
   const user = await storage.getSession()
   const response = await api.post('alerts', {
     user_id: Number(user?.id),
+    alert_type_id:1,
+    dive_type_id:1,
     ...data
   })
   return response.data
