@@ -27,3 +27,7 @@ export interface IAddContact {
   relationship: string,
 }
 
+export interface INewAlert {
+  location_lat: number,
+  location_lng: number,
+}
