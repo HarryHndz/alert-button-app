@@ -13,7 +13,7 @@ export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [contacts, setContacts] = useState<IContact[]>([])
-
+  
   const getLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -31,9 +31,6 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    console.log('Before')
-    getLocation();
-    console.log('After');
     const fetchContacts = async()=>{
       try {
         const storage = new LocalStorage()
@@ -45,10 +42,10 @@ export default function HomeScreen() {
         console.log('error',error)
       }
     }
-    if (isLoading) {
-      fetchContacts()
+    if(!isLoading){
+      getLocation();
+      fetchContacts() 
     }
-    
   }, [isLoading]);
 
 
