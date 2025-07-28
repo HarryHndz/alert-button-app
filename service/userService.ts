@@ -1,4 +1,4 @@
-import { IAddContact, IResUser } from '@/data/IUser';
+import { IAddContact, INewAlert, IResUser } from '@/data/IUser';
 import api from '@/service/api';
 import LocalStorage from '@/utils/storage';
 import type { RegisterData } from '@/validation/validation';
@@ -23,5 +23,15 @@ export const addContact = async (data: IAddContact) => {
     }
   )
   console.log("Response to api for make a new contact", response)
+  return response.data
+}
+
+export const newAlert = async (data: INewAlert) => {
+  const storage = new LocalStorage()
+  const user = await storage.getSession()
+  const response = await api.post('alerts', {
+    user_id: Number(user?.id),
+    ...data
+  })
   return response.data
 }
