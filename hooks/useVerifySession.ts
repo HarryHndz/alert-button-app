@@ -10,12 +10,14 @@ export const useVerifySession = ()=>{
         setIsLoading(true)
         const storage = new LocalStorage()
         const session = await storage.getSession()
+        console.log('session accaa',session)
         if (!session) {
           console.log('no session')
-          return
+          return router.replace('/login')
         }
-        router.replace('/(tabs)/home')
         console.log('session')
+        router.replace('/(tabs)')
+        
       } catch (error) {
         console.log('error',error)
       } finally {

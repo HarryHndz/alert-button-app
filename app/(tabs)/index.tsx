@@ -1,13 +1,15 @@
 import { Box } from '@/components/ui/box';
 import { ButtonSpinner } from '@/components/ui/button';
 import { IContact } from '@/data/IContact';
+import { useVerifySession } from '@/hooks/useVerifySession';
 import { getContacts } from '@/service/contactService';
 import LocalStorage from '@/utils/storage';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, Text } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
 export default function HomeScreen() {
+  const {isLoading} = useVerifySession()
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [contacts, setContacts] = useState<IContact[]>([])
@@ -43,10 +45,20 @@ export default function HomeScreen() {
         console.log('error',error)
       }
     }
-    fetchContacts()
-  }, []);
-
+    if (isLoading) {
+      fetchContacts()
+    }
     
+  }, [isLoading]);
+
+
+  if (isLoading) {
+    return(
+      <Box className='flex-1 items-center justify-center'>
+        <ActivityIndicator size='large' color='white' />
+      </Box>
+    )
+  }
 
   return (
     <Box className="flex-1 bg-neutral-900 w-full h-full justify-center items-center">
@@ -72,7 +84,7 @@ export default function HomeScreen() {
               shadowRadius: 16,
               elevation: 12,
             }}
-            onPress={() => { console.log('Send map')}}>
+            >
             <Text className="text-white text-2xl md:text-3xl font-semibold">Presionar</Text>
           </Pressable>
         </Box>

@@ -24,10 +24,12 @@ export default function TabLayout() {
     try {
       const storage = new LocalStorage()
       const session = await storage.getSession()
+      console.log('session',session)
       if(!session) return
       await logoutService(session.token)
+      console.log('remove session')
       await storage.removeSession()
-      return router.replace('/')
+      return router.replace('/login')
     } catch (error) {
       console.log('error',error)
     }
@@ -44,7 +46,7 @@ export default function TabLayout() {
               <Text className="text-white text-lg font-bold">Nombre de la App</Text>
             </View>
             <View className="flex flex-row gap-8">
-              <Link href="/(tabs)/home" asChild>
+              <Link href="/(tabs)" asChild>
                 <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
               </Link>
               <Link href="/(tabs)/contact" asChild>
@@ -80,7 +82,7 @@ export default function TabLayout() {
           
         }}>
         <Tabs.Screen
-          name="home"
+          name="index"
           options={{
             title: 'Home',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />, 

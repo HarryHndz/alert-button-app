@@ -20,8 +20,8 @@ export const CardContact = ({contact}:{contact:IContact}) => {
     </Box>
 
     <Box className='flex flex-col gap-2 w-4/6'>
-      <Text className='text-white text-lg font-bold'>Harry Hernández</Text>
-      <Text className='text-white text-sm'>9931957426</Text>
+      <Text className='text-white text-lg font-bold'>{contact.name} {contact.lastName}</Text>
+      <Text className='text-white text-sm'>{contact.phone}</Text>
     </Box>
     <Pressable className='w-1/6 bg-red-500 rounded-lg items-center justify-center'>
       <TrashIcon color='white' />

@@ -11,8 +11,9 @@ export const getContacts = async(token:string,userId:number):Promise<IContact[]>
       }
     })
     const data = response.data
+    
     const responseData:IContact[] = data.map((contact:any)=>({
-      id:contact.contact_id,
+      id:contact.id,
       name:contact.name,
       lastName:contact.last_name,
       phone:contact.phone_number,

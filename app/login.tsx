@@ -21,17 +21,15 @@ import {
 } from '@/components/ui/toast'
 import { VStack } from '@/components/ui/vstack'
 import { ILogin } from '@/data/ILogin'
-import { useVerifySession } from '@/hooks/useVerifySession'
 import { loginService } from '@/service/authService'
 import LocalStorage from '@/utils/storage'
 import { loginValidation } from '@/validation/loginValidation'
 import { Link, router } from 'expo-router'
 import { useFormik } from 'formik'
 import { useState } from 'react'
-import { ActivityIndicator, Platform, Pressable, Text } from 'react-native'
+import { Platform, Pressable, Text } from 'react-native'
 
 export default function Index() {
-  const {isLoading} = useVerifySession()
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const initialValues:ILogin = {
     email:'',
@@ -93,7 +91,7 @@ export default function Index() {
       if (response) {
         const storage = new LocalStorage()
         await storage.setSession(response)
-        return router.replace('/(tabs)/home')
+        return router.replace('/(tabs)')
       }
     } catch (error) {
       handleShowToast('Error',`${error}`)
@@ -112,16 +110,6 @@ export default function Index() {
     onSubmit:handleLogin
   })
 
-
-   if (isLoading) {
-    return(
-      <Box className='flex-1 items-center justify-center'>
-        <ActivityIndicator size='large' color='white' />
-      </Box>
-    )
-  }
-
-  
   return (
     <Box className={stylesContainer}>
       <Box className={stylesForm}>
