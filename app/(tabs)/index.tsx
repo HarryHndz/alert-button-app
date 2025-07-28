@@ -9,7 +9,7 @@ import LocalStorage from '@/utils/storage';
 import * as Location from 'expo-location';
 import { connect } from 'mqtt/dist/mqtt';
 import { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, Text } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 // Importa polyfills SOLO para React Native
 if (Platform.OS !== 'web') {
   require('react-native-get-random-values');
@@ -173,12 +173,12 @@ export default function HomeScreen() {
   }, [isLoading]);
 
 
-  if (!isLoading) {
-   return(
-     <Box className='flex-1 items-center justify-center'>
+  if (isLoading) {
+    return(
+      <Box className='flex-1 items-center justify-center'>
        <ActivityIndicator size='large' color='white' />
-     </Box>
-   )
+      </Box>
+    )
   }
 
   return (
