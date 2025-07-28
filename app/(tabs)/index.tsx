@@ -158,7 +158,11 @@ export default function HomeScreen() {
 
       mqttClient.current = client;
     }
-
+    if(!isLoading){
+      getLocation();
+      fetchContacts() 
+    }
+    
     return () => {
       if (mqttClient.current) {
         if (Platform.OS === 'web') {
@@ -168,7 +172,7 @@ export default function HomeScreen() {
         }
       }
     };
-
+    
     
   }, [isLoading]);
 
