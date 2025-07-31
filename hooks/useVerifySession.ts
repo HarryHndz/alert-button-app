@@ -23,19 +23,16 @@ export const useVerifySession = ()=>{
         console.log('🔑 Sesión obtenida:', session)
         
         if (!session) {
-          console.log('❌ No hay sesión, redirigiendo a login...')
-          setIsLoading(false)
-          return router.replace('/login')
+          console.log('❌ No hay sesión')
+          return setIsLoading(false)
         }
         
-        console.log('✅ Sesión válida encontrada')
+        console.log('✅ Sesión válida encontrada, redirigiendo a home...')
         setIsLoading(false)
-        
+        router.replace('/auth/tabs')
       } catch (error) {
         console.error('💥 Error en verifySession:', error)
         setIsLoading(false)
-        // En caso de error, también redirigir a login
-        router.replace('/login')
       }
     }
     
@@ -54,7 +51,6 @@ export const useVerifySession = ()=>{
             } else {
               console.error('❌ Todos los intentos fallaron')
               setIsLoading(false)
-              router.replace('/login')
             }
           }
         }

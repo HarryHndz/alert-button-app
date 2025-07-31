@@ -56,7 +56,7 @@ export default function TabTwoScreen() {
         </Input>
         
         <Pressable className='w-1/6 bg-blue-950 rounded-lg items-center justify-center'>
-          <Link href='/(tabs)/contact/addContact'>
+          <Link href="/auth/tabs/contact/addContact">
             <PlusIcon color='white' />
           </Link>
         </Pressable>

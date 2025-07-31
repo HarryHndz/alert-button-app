@@ -2,14 +2,13 @@ import { Box } from '@/components/ui/box';
 import { ButtonSpinner } from '@/components/ui/button';
 import { IContact } from '@/data/IContact';
 import { INewAlert } from '@/data/IUser';
-import { useVerifySession } from '@/hooks/useVerifySession';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
 import LocalStorage from '@/utils/storage';
 import * as Location from 'expo-location';
 import { connect } from 'mqtt/dist/mqtt';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
+import { Platform, Pressable, Text } from 'react-native';
 // Importa polyfills SOLO para React Native
 if (Platform.OS !== 'web') {
   require('react-native-get-random-values');
@@ -19,12 +18,11 @@ if (Platform.OS !== 'web') {
 const topic = 'emergency/location';
 
 // Parámetros del broker
-const BROKER_HOST = "6.tcp.ngrok.io"; // tu IP local
-const BROKER_PORT = 15279;
+const BROKER_HOST = "192.168.37.78"; // tu IP local
+const BROKER_PORT = 8083;
 const BROKER_PATH = "/mqtt"; // path default de websockets mosquitto
 
 export default function HomeScreen() {
-  const {isLoading} = useVerifySession()
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [contacts, setContacts] = useState<IContact[]>([])
@@ -158,11 +156,8 @@ export default function HomeScreen() {
 
       mqttClient.current = client;
     }
-    if(!isLoading){
-      getLocation();
-      fetchContacts() 
-    }
-    
+    getLocation();
+    fetchContacts() 
     return () => {
       if (mqttClient.current) {
         if (Platform.OS === 'web') {
@@ -174,16 +169,8 @@ export default function HomeScreen() {
     };
     
     
-  }, [isLoading]);
+  }, []);
 
-
-  if (isLoading) {
-    return(
-      <Box className='flex-1 items-center justify-center'>
-       <ActivityIndicator size='large' color='white' />
-      </Box>
-    )
-  }
 
   return (
     <Box className="flex-1 bg-neutral-900 w-full h-full justify-center items-center">

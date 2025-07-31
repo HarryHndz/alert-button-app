@@ -12,8 +12,7 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-
- 
+  
   
   if (!loaded) return null;
 
@@ -21,10 +20,9 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <GluestackUIProvider mode={colorScheme}>
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
+          <Stack.Screen name="index" options={{ title: 'Iniciar sesión' }} />
           <Stack.Screen name="register" options={{ title: 'Registrate' }} />
-          <Stack.Screen name="login" options={{ title: 'Iniciar sesión' }} />
+          <Stack.Screen name="auth" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
       </GluestackUIProvider>

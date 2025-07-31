@@ -47,3 +47,23 @@ export const logoutService = async(token:string):Promise<void>=>{
     throw 'Error al cerrar sesión'
   }
 }
+
+export const changePasswordService = async(currentPassword:string,newPassword:string,token:string):Promise<void>=>{
+  try {
+    await api.post('/auth/change-password',{
+      newPassword:newPassword,
+      currentPassword:currentPassword
+    },{
+      headers:{
+        Authorization: `Bearer ${token}`
+      }
+    })
+    
+  } catch (error) {
+    if(error instanceof AxiosError){
+      console.log(error.response?.data)
+      throw error.response?.data.message ?? 'Error al cambiar contraseña'
+    }
+    throw 'Error al cambiar contraseña'
+  }
+}
