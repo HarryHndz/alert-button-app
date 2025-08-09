@@ -31,13 +31,13 @@ export default function TabLayout() {
             </View>
             <View className="flex flex-row gap-8">
               <Link href="/auth/tabs" asChild>
-                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
+                <Text className={`text-white text-base font-medium ${pathname === '/auth/tabs' || pathname === 'auth/tabs/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
               </Link>
               <Link href="/auth/tabs/contact" asChild>
-                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/contact' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Contactos</Text>
+                <Text className={`text-white text-base font-medium ${pathname === '/auth/tabs/contact' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Contactos</Text>
               </Link>
               <Link href="/auth/tabs/map" asChild>
-                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/map' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Mapa</Text>
+                <Text className={`text-white text-base font-medium ${pathname === '/auth/tabs/map' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Mapa</Text>
               </Link>
             </View>
             <HeaderMenu />
