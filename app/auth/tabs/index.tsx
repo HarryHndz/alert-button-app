@@ -6,21 +6,14 @@ import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
 import LocalStorage from '@/utils/storage';
 import * as Location from 'expo-location';
-import { connect } from 'mqtt/dist/mqtt';
-import { useEffect, useRef, useState } from 'react';
+import { Client, Message } from 'paho-mqtt';
+import { useEffect, useState } from 'react';
 import { Platform, Pressable, Text } from 'react-native';
-// Importa polyfills SOLO para React Native
-if (Platform.OS !== 'web') {
-  require('react-native-get-random-values');
-  require('react-native-url-polyfill/auto');
-}
+
 
 const topic = 'emergency/location';
-
-// Parámetros del broker
-const BROKER_HOST = "192.168.37.78"; // tu IP local
-const BROKER_PORT = 8083;
-const BROKER_PATH = "/mqtt"; // path default de websockets mosquitto
+const brokerHost  = "192.168.1.70"; // tu IP local
+const port = 8083;
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -28,8 +21,8 @@ export default function HomeScreen() {
   const [contacts, setContacts] = useState<IContact[]>([])
   const [sending, setSending] = useState(false);
 
-  // MQTT client
-  let mqttClient = useRef<any>(null);
+  const [client, setClient] = useState<Client | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   
   const getLocation = async () => {
     try {
@@ -49,6 +42,18 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchContacts = async()=>{
+    try {
+      const storage = new LocalStorage()
+      const session = await storage.getSession()
+      if (!session) return 
+      const contacts = await getContacts(session.token,session.id)
+      setContacts(contacts)
+    } catch (error) {
+      console.log('error',error)
+    }
+  }
+
   const handlePress = async () => {
     setSending(true);
 
@@ -64,24 +69,13 @@ export default function HomeScreen() {
     };
 
     try {
+      if (client && isConnected) {
+        const msg = new Message(JSON.stringify(payload));
+        msg.destinationName = topic;
+        client.send(msg);
+      }
       const reponse = await newAlert(payload)
       console.log("Respuesta de la alerta", reponse)
-
-      
-      // Publicar según la plataforma
-      if (Platform.OS === 'web') {
-        if (mqttClient.current?.isConnected()) {
-          const { Message } = await import('paho-mqtt');
-          const msg = new Message(JSON.stringify(payload));
-          msg.destinationName = topic;
-          mqttClient.current.send(msg);
-        }
-      } else {
-        // mqtt.js en móvil
-        if (mqttClient.current?.connected) {
-          mqttClient.current.publish(topic, JSON.stringify(payload));
-        }
-      }
 
       console.log('Ubicación enviada:', payload);
     } catch (err) {
@@ -95,79 +89,34 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    const fetchContacts = async()=>{
-      try {
-        const storage = new LocalStorage()
-        const session = await storage.getSession()
-        if (!session) return 
-        const contacts = await getContacts(session.token,session.id)
-        setContacts(contacts)
-      } catch (error) {
-        console.log('error',error)
-      }
-    }
-    // Crear cliente MQTT según plataforma
-    if (Platform.OS === 'web') {
-      // --- WEB: PAHO ---
-      import('paho-mqtt').then(({ Client }) => {
-        const client = new Client(BROKER_HOST, BROKER_PORT, BROKER_PATH, "expo-client -" + Math.random());
-        console.log("cliente", client)
-        client.onConnectionLost = (res) => {
-          console.log('MQTT conexión perdida', res.errorMessage);
-        };
-
-        client.onMessageArrived = (message) => {
-          console.log('Mensaje recibido:', message.payloadString);
-        };
-
-        client.connect({
-          useSSL: false,
-          onSuccess: () => {
-            console.log('Conectado a MQTT (WEB)');
-            client.subscribe(topic);
-          },
-          onFailure: (err) => {
-            console.error('Error al conectar (WEB)', err);
-          },
-        });
-
-        mqttClient.current = client;
-      });
-
-    } else {
-      // --- MOBILE: mqtt.js ---
-      const url = `ws://${BROKER_HOST}:${BROKER_PORT}`;
-      const client = connect(url, {
-        clientId: 'expo-mobile-' + Math.random(),
-      });
-
-      client.on('connect', () => {
-        console.log('Conectado a MQTT (Mobile)');
-        client.subscribe(topic);
-      });
-
-      client.on('message', (t: string, msg: Buffer) => {
-        console.log('Mensaje recibido:', t, msg.toString());
-      });
-
-      client.on('error', (err: any) => {
-        console.error('Error MQTT (Mobile):', err);
-      });
-
-      mqttClient.current = client;
-    }
     getLocation();
-    fetchContacts() 
+    fetchContacts()
+    
+    const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
+    mqttClient.onConnectionLost = (responseObject) => {
+      console.log("Conexión perdida:", responseObject.errorMessage);
+      setIsConnected(false);
+    };
+
+    mqttClient.connect({
+      onSuccess: () => {
+        console.log("Conectado al broker");
+        setIsConnected(true);
+        mqttClient.subscribe(topic);
+      },
+      onFailure: (err) => {
+        console.log("Error al conectar", err);
+      },
+      useSSL: false,
+    });
+
+    setClient(mqttClient);
+
     return () => {
-      if (mqttClient.current) {
-        if (Platform.OS === 'web') {
-          mqttClient.current.disconnect();
-        } else {
-          mqttClient.current.end();
-        }
+      if (mqttClient && mqttClient.isConnected()) {
+        mqttClient.disconnect();
       }
     };
-    
     
   }, []);
 
