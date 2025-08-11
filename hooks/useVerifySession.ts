@@ -29,7 +29,7 @@ export const useVerifySession = ()=>{
         
         console.log('✅ Sesión válida encontrada, redirigiendo a home...')
         setIsLoading(false)
-        router.replace('/auth/tabs')
+        router.replace('/auth/(tabs)')
       } catch (error) {
         console.error('💥 Error en verifySession:', error)
         setIsLoading(false)

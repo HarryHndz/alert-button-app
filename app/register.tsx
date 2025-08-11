@@ -1,8 +1,8 @@
+import { ButtonLoader } from '@/components/ButtonLoader';
+import { ThemedInput } from '@/components/ThemedInput';
 import { Box } from '@/components/ui/box';
-import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
 import { EyeIcon, EyeOffIcon, MailIcon, UnlockIcon } from '@/components/ui/icon';
-import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Image } from 'expo-image';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
@@ -66,106 +66,81 @@ export default function Register() {
             ) : null}
             <FormControl>
               <Box className="flex flex-col gap-4 w-full">
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Correo</Text>
-                  <Input>
-                    <InputSlot>
-                      <InputIcon as={MailIcon} />
-                    </InputSlot>
-                    <InputField
-                      placeholder="Ingrese su correo"
-                      value={formik.values.email}
-                      onChangeText={formik.handleChange('email')}
-                      onBlur={formik.handleBlur('email')}
-                      autoCapitalize="none"
-                      keyboardType="email-address"
-                    />
-                  </Input>
-                  {formik.touched.email && formik.errors.email && (
-                    <Text className="text-red-500 text-xs mt-1">{formik.errors.email}</Text>
-                  )}
-                </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Nombre</Text>
-                  <Input>
-                    <InputField
-                      placeholder="Ingrese su nombre"
-                      value={formik.values.name}
-                      onChangeText={formik.handleChange('name')}
-                      onBlur={formik.handleBlur('name')}
-                    />
-                  </Input>
-                  {formik.touched.name && formik.errors.name && (
-                    <Text className="text-red-500 text-xs mt-1">{formik.errors.name}</Text>
-                  )}
-                </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Apellidos</Text>
-                  <Input>
-                    <InputField
-                      placeholder="Ingrese su apellido"
-                      value={formik.values.last_name}
-                      onChangeText={formik.handleChange('last_name')}
-                      onBlur={formik.handleBlur('last_name')}
-                    />
-                  </Input>
-                  {formik.touched.last_name && formik.errors.last_name && (
-                    <Text className="text-red-500 text-xs mt-1">{formik.errors.last_name}</Text>
-                  )}
-                </Box>
+                <ThemedInput
+                  iconLeft={MailIcon}
+                  sizeInput='lg'
+                  cn='w-full'
+                  variant='outline'
+                  isInvalid={!!formik.errors.email && formik.touched.email ? true : false}
+                  label='Correo'
+                  placeholder="Ingrese su correo"
+                  value={formik.values.email}
+                  onChangeText={formik.handleChange('email')}
+                  onBlur={formik.handleBlur('email')}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  errorMessage={formik.errors.email ?? ''}
+                />
+                <ThemedInput
+                  sizeInput='lg'
+                  cn='w-full'
+                  variant='outline'
+                  isInvalid={!!formik.errors.name && formik.touched.name ? true : false}
+                  label='Nombre'
+                  placeholder="Ingrese su nombre"
+                  value={formik.values.name}
+                  onChangeText={formik.handleChange('name')}
+                  onBlur={formik.handleBlur('name')}
+                  errorMessage={formik.errors.name ?? ''}
+                />
+                <ThemedInput
+                  sizeInput='lg'
+                  cn='w-full'
+                  variant='outline'
+                  isInvalid={!!formik.errors.last_name && formik.touched.last_name ? true : false}
+                  label='Apellidos'
+                  placeholder="Ingrese su apellido"
+                  value={formik.values.last_name}
+                  onChangeText={formik.handleChange('last_name')}
+                  onBlur={formik.handleBlur('last_name')}
+                  errorMessage={formik.errors.last_name ?? ''}
+                />
+                <ThemedInput
+                  sizeInput='lg'
+                  cn='w-full'
+                  variant='outline'
+                  isInvalid={!!formik.errors.phone_number && formik.touched.phone_number ? true : false}
+                  label='Teléfono'
+                  placeholder="Ingrese su teléfono"
+                  value={formik.values.phone_number}
+                  onChangeText={formik.handleChange('phone_number')}
+                  onBlur={formik.handleBlur('phone_number')}
+                  keyboardType="phone-pad"
+                  errorMessage={formik.errors.phone_number ?? ''}
+                />
 
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Teléfono</Text>
-                  <Input>
-                    <InputField
-                      placeholder="Ingrese su teléfono"
-                      value={formik.values.phone_number}
-                      onChangeText={formik.handleChange('phone_number')}
-                      onBlur={formik.handleBlur('phone_number')}
-                      keyboardType="phone-pad"
-                    />
-                  </Input>
-                  {formik.touched.phone_number && formik.errors.phone_number && (
-                    <Text className="text-red-500 text-xs mt-1">{formik.errors.phone_number}</Text>
-                  )}
-                </Box>
-                <Box className="w-full">
-                  <Text className="text-white mb-1">Contraseña</Text>
-                  <Input>
-                    <InputSlot>
-                      <InputIcon as={UnlockIcon} />
-                    </InputSlot>
-                    <InputField
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Ingrese su contraseña"
-                      value={formik.values.password}
-                      onChangeText={formik.handleChange('password')}
-                      onBlur={formik.handleBlur('password')}
-                      secureTextEntry={!showPassword}
-                    />
-                    <InputSlot className='pr-3' onPress={()=>setShowPassword(!showPassword)}>
-                      <InputIcon as={showPassword ? EyeIcon : EyeOffIcon}/>
-                    </InputSlot>
-                  </Input>
-                  {formik.touched.password && formik.errors.password && (
-                    <Text className="text-red-500 text-xs mt-1">{formik.errors.password}</Text>
-                  )}
-                </Box>
-                
-                <Button className="mt-8 w-full" onPress={() => formik.handleSubmit()} disabled={loading}>
-                  {
-                    loading ? (
-                      <>
-                        <ButtonSpinner color='black' />
-                        <ButtonText>Registrando...</ButtonText>
-                      </>
-                    ) : (
-                      <>
-                        <ButtonText>Registrarse</ButtonText>
-                      </>
-                    )
-                  }
-                </Button>
+                <ThemedInput
+                  iconLeft={UnlockIcon}
+                  sizeInput='lg'
+                  cn='w-full'
+                  variant='outline'
+                  isInvalid={!!formik.errors.password && formik.touched.password ? true : false}
+                  label='Contraseña'
+                  placeholder="Ingrese su nombre"
+                  value={formik.values.name}
+                  onChangeText={formik.handleChange('name')}
+                  onBlur={formik.handleBlur('name')}
+                  errorMessage={formik.errors.name ?? ''}
+                  type={showPassword ? 'text' : 'password'}
+                  secureTextEntry={!showPassword}
+                  iconRight={showPassword ? EyeIcon : EyeOffIcon}
+                  iconRightPress={()=>setShowPassword(!showPassword)}
+                />
+                <ButtonLoader
+                  isSubmitting={loading}
+                  handleSubmit={formik.handleSubmit}
+                  text='Registrarse'
+                />
               </Box>
             </FormControl>
           </Box>

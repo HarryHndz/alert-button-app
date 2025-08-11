@@ -1,5 +1,6 @@
+import { ButtonLoader } from '@/components/ButtonLoader'
+import { ThemedInput } from '@/components/ThemedInput'
 import { Box } from '@/components/ui/box'
-import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
 import { FormControl } from '@/components/ui/form-control'
 import { HStack } from '@/components/ui/hstack'
@@ -12,7 +13,6 @@ import {
   MailIcon,
   UnlockIcon
 } from '@/components/ui/icon'
-import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input'
 import {
   Toast,
   ToastDescription,
@@ -93,7 +93,7 @@ export default function Index() {
       if (response) {
         const storage = new LocalStorage()
         await storage.setSession(response)
-        return router.replace('/auth/tabs')
+        return router.replace('/auth/(tabs)')
       }
     } catch (error) {
       handleShowToast('Error',`${error}`)
@@ -124,59 +124,41 @@ export default function Index() {
     <Box className={stylesContainer}>
       <Box className={stylesForm}>
         <FormControl>
-          <Box className='mb-4'>
-            <Text className='text-white pb-2'>Correo</Text>
-            <Input variant='outline' size='lg' isInvalid={!!errors.email && touched.email}>
-            <InputSlot className='pl-3'>
-              <InputIcon as={MailIcon}/>
-            </InputSlot>
-            <InputField 
-              value={values.email}
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              placeholder='Ingrese su correo' />
-            </Input>
-            {
-              errors.email && touched.email && (
-                <Text className='text-red-500'>{errors.email}</Text>
-              )
-            }
-          </Box>
-          <Box className='mb-4'>
-            <Text className='text-white pb-2'>Contraseña</Text>
-            <Input variant='outline' size='lg' isInvalid={!!errors.password && touched.password}>
-              <InputSlot className='pl-3'>
-                <InputIcon as={UnlockIcon}/>
-              </InputSlot>
-              <InputField 
-              value={values.password}
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              
-              type={showPassword ? 'text' : 'password'} placeholder='Ingrese su contraseña' />
-              <InputSlot className='pr-3' onPress={()=>setShowPassword(!showPassword)}>
-                <InputIcon as={showPassword ? EyeIcon : EyeOffIcon}/>
-              </InputSlot>
-            </Input>
-            {
-              errors.password && touched.password && (
-                <Text className='text-red-500'>{errors.password}</Text>
-              )
-            }
-            <Text className='text-white py-4'>¿Olvidaste tu contraseña?</Text>
-          </Box>
-          <Button className='mt-4' onPress={()=>handleSubmit()} disabled={isSubmitting} >
-            {
-              isSubmitting ? (
-              <>
-                <ButtonSpinner color='black' />
-                <ButtonText>Enviando...</ButtonText>
-              </>
-              ) : (
-                <ButtonText>Iniciar sesión</ButtonText>
-              )
-            }
-          </Button>
+          <ThemedInput
+            cn='mb-4' 
+            iconLeft={MailIcon}
+            sizeInput='lg'
+            variant='outline'
+            isInvalid={!!errors.email && touched.email ? true : false}
+            label='Correo'
+            errorMessage={errors.email ?? ''}
+            value={values.email}
+            onChangeText={handleChange('email')}
+            onBlur={handleBlur('email')}
+            placeholder='Ingrese su correo'
+          />
+          <ThemedInput
+            cn='mb-4'
+            iconLeft={UnlockIcon}
+            sizeInput='lg'
+            variant='outline'
+            isInvalid={!!errors.password && touched.password ? true : false}
+            label='Contraseña'
+            errorMessage={errors.password ?? ''}
+            value={values.password}
+            onChangeText={handleChange('password')}
+            onBlur={handleBlur('password')}
+            type={showPassword ? 'text' : 'password'} 
+            placeholder='Ingrese su contraseña'
+            iconRight={showPassword ? EyeIcon : EyeOffIcon}
+            iconRightPress={()=>setShowPassword(!showPassword)}
+            secureTextEntry={!showPassword}
+          />
+          <ButtonLoader
+            isSubmitting={isSubmitting}
+            handleSubmit={handleSubmit}
+            text='Iniciar sesión'
+          />
         </FormControl>
         <Divider className='my-4' />
         <Box className='flex flex-row items-center justify-center gap-1'>

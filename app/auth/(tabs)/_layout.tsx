@@ -1,22 +1,20 @@
 import { HapticTab } from '@/components/HapticTab';
 import { HeaderMenu } from '@/components/HeaderMenu';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Image } from 'expo-image';
 import { Link, Slot, Tabs, usePathname } from 'expo-router';
+import { House, MapPin, Phone } from 'lucide-react-native';
 import React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isWeb = Platform.OS === 'web';
   const pathname = usePathname();
-  const isAddContact = pathname.includes('addContact');
-  const isContactTab = pathname.includes('contact');
+  const isAddContact = pathname.includes('addcontact');
 
 
   if (isWeb) {
@@ -30,14 +28,14 @@ export default function TabLayout() {
               <Text className="text-white text-lg font-bold">Nombre de la App</Text>
             </View>
             <View className="flex flex-row gap-8">
-              <Link href="/auth/tabs" asChild>
-                <Text className={`text-white text-base font-medium ${pathname === '/auth/tabs' || pathname === 'auth/tabs/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
+              <Link href="/auth/(tabs)" asChild>
+                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
               </Link>
-              <Link href="/auth/tabs/contact" asChild>
-                <Text className={`text-white text-base font-medium ${pathname === '/auth/tabs/contact' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Contactos</Text>
+              <Link href="/auth/(tabs)/contact" asChild>
+                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/contact' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Contactos</Text>
               </Link>
-              <Link href="/auth/tabs/map" asChild>
-                <Text className={`text-white text-base font-medium ${pathname === '/auth/tabs/map' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Mapa</Text>
+              <Link href="/auth/(tabs)/map" asChild>
+                <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/map' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Mapa</Text>
               </Link>
             </View>
             <HeaderMenu />
@@ -69,7 +67,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />, 
+            tabBarIcon: ({ color,focused }) => <House size={28} color={ focused ? color : 'gray'} />, 
             headerShown:true,
             header:(e)=><HeaderMenu />
           }}
@@ -78,7 +76,7 @@ export default function TabLayout() {
           name="map"
           options={{
             title: 'Map',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />, 
+            tabBarIcon: ({ color,focused }) => <MapPin size={28} color={ focused ? color : 'gray'} />, 
             headerShown:true,
             header:(e)=><HeaderMenu />
           }}
@@ -88,7 +86,7 @@ export default function TabLayout() {
           options={{
             title: 'Contact',
             headerShown: true,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />, 
+            tabBarIcon: ({ color,focused }) => <Phone size={28} color={ focused ? color : 'gray'} />, 
             header:(e)=><HeaderMenu />
           }}
         />

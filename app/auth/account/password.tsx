@@ -24,7 +24,7 @@ export default function PasswordScreen() {
       const sesion = await storage.getSession()
       if (!sesion)return
       await changePasswordService(values.currentPassword,values.password,sesion.token)
-      return router.replace('/auth/tabs')
+      return router.replace('/auth/(tabs)')
     } catch (error) {
       console.log(error)
       Alert.alert('Error',`${error}`)

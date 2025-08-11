@@ -26,8 +26,3 @@ export interface IAddContact {
   phone_number: string,
   relationship: string,
 }
-
-export interface INewAlert {
-  location_lat: number,
-  location_lng: number,
-}

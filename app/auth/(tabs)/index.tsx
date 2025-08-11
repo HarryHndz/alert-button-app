@@ -1,15 +1,14 @@
 import { Box } from '@/components/ui/box';
 import { ButtonSpinner } from '@/components/ui/button';
-import { IContact } from '@/data/IContact';
-import { INewAlert } from '@/data/IUser';
+import { IAlert } from '@/data/IAlert';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
+import useStore from '@/store/useStore';
 import LocalStorage from '@/utils/storage';
 import * as Location from 'expo-location';
 import { Client, Message } from 'paho-mqtt';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, Text } from 'react-native';
-
+import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
 const topic = 'emergency/location';
 const brokerHost  = "192.168.1.70"; // tu IP local
@@ -17,13 +16,13 @@ const port = 8083;
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const contacts = useStore((state)=>state.contacts)
+  const setContactsStore = useStore((state)=>state.setContactsStore)
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [contacts, setContacts] = useState<IContact[]>([])
   const [sending, setSending] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [client, setClient] = useState<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  
   const getLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -44,81 +43,91 @@ export default function HomeScreen() {
 
   const fetchContacts = async()=>{
     try {
+      setIsLoading(true)
       const storage = new LocalStorage()
       const session = await storage.getSession()
       if (!session) return 
       const contacts = await getContacts(session.token,session.id)
-      setContacts(contacts)
+      setContactsStore(contacts)
     } catch (error) {
       console.log('error',error)
+      setErrorMsg('Error al obtener los contactos')
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handlePress = async () => {
-    setSending(true);
-
-    const loc = await getLocation();
-    if (!loc) {
-      setSending(false);
-      return;
-    }
-
-    const payload: INewAlert = {
-      location_lat: loc.coords.latitude,
-      location_lng: loc.coords.longitude,
-    };
-
+  const handleNewAlert = async () => {
     try {
+      setSending(true)
+      const loc = await getLocation()
+      if (!loc) return setSending(false)
+      const storage = new LocalStorage()
+      const session = await storage.getSession()
+      if (!session) return setSending(false)
+      const payload: IAlert = {
+        location_lat: loc.coords.latitude,
+        location_lng: loc.coords.longitude,
+        user_id: session.id,
+        alert_type_id: 1,
+        dive_type_id: 1,
+        url:`http://localhost:8081/auth/map?userId=${session.id}`
+      }
+      const response = await newAlert(session.token,payload)
       if (client && isConnected) {
         const msg = new Message(JSON.stringify(payload));
         msg.destinationName = topic;
         client.send(msg);
       }
-      const reponse = await newAlert(payload)
-      console.log("Respuesta de la alerta", reponse)
-
-      console.log('Ubicación enviada:', payload);
-    } catch (err) {
-      console.error('Error al enviar la ubicación', err);
+      console.log('response',response)
+    } catch (error) {
+      console.log('error',error)
     } finally {
-      // Simular pequeña pausa antes de volver a habilitar
-      //setTimeout(() => {
-      //  setSending(false);
-      //}, 1000);
+      setSending(false)
     }
   };
 
   useEffect(() => {
-    getLocation();
     fetchContacts()
-    
-    const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
-    mqttClient.onConnectionLost = (responseObject) => {
-      console.log("Conexión perdida:", responseObject.errorMessage);
-      setIsConnected(false);
-    };
-
-    mqttClient.connect({
-      onSuccess: () => {
-        console.log("Conectado al broker");
-        setIsConnected(true);
-        mqttClient.subscribe(topic);
-      },
-      onFailure: (err) => {
-        console.log("Error al conectar", err);
-      },
-      useSSL: false,
-    });
-
-    setClient(mqttClient);
-
-    return () => {
-      if (mqttClient && mqttClient.isConnected()) {
-        mqttClient.disconnect();
-      }
-    };
-    
   }, []);
+
+  useEffect(()=>{
+    if (!isLoading) {
+      const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
+      mqttClient.onConnectionLost = (responseObject) => {
+        console.log("Conexión perdida:", responseObject.errorMessage);
+        setIsConnected(false);
+      };
+
+      mqttClient.connect({
+        onSuccess: () => {
+          console.log("Conectado al broker");
+          setIsConnected(true);
+          mqttClient.subscribe(topic);
+        },
+        onFailure: (err) => {
+          console.log("Error al conectar", err);
+        },
+        useSSL: false,
+      });
+
+      setClient(mqttClient);
+      return () => {
+        if (mqttClient && mqttClient.isConnected()) {
+          mqttClient.disconnect();
+        }
+      };
+    }
+    
+  },[isLoading])
+
+  if (isLoading) {
+    return(
+      <Box className='flex-1 items-center justify-center'>
+       <ActivityIndicator size='large' color='white' />
+      </Box>
+    )
+  }
 
 
   return (
@@ -146,7 +155,8 @@ export default function HomeScreen() {
               elevation: 12,
               opacity: sending ? 0.7 : 1,
             }}
-            onPress={sending ? undefined : handlePress}
+            onPress={handleNewAlert}
+            disabled={sending}
             >
             {sending ? (
               <ButtonSpinner color="white" />
@@ -183,3 +193,70 @@ export default function HomeScreen() {
     </Box>
   );
 }
+
+
+// const handlePress = async () => {
+//   setSending(true);
+
+//   const loc = await getLocation();
+//   if (!loc) {
+//     setSending(false);
+//     return;
+//   }
+
+//   const payload: INewAlert = {
+//     location_lat: loc.coords.latitude,
+//     location_lng: loc.coords.longitude,
+//   };
+
+//   try {
+//     if (client && isConnected) {
+//       const msg = new Message(JSON.stringify(payload));
+//       msg.destinationName = topic;
+//       client.send(msg);
+//     }
+//     const reponse = await newAlert(payload)
+//     console.log("Respuesta de la alerta", reponse)
+
+//     console.log('Ubicación enviada:', payload);
+//   } catch (err) {
+//     console.error('Error al enviar la ubicación', err);
+//   } finally {
+//   }
+// };
+
+
+
+// useEffect(() => {
+//   fetchContacts()
+  
+//   const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
+//   mqttClient.onConnectionLost = (responseObject) => {
+//     console.log("Conexión perdida:", responseObject.errorMessage);
+//     setIsConnected(false);
+//   };
+
+//   mqttClient.connect({
+//     onSuccess: () => {
+//       console.log("Conectado al broker");
+//       setIsConnected(true);
+//       mqttClient.subscribe(topic);
+//     },
+//     onFailure: (err) => {
+//       console.log("Error al conectar", err);
+//     },
+//     useSSL: false,
+//   });
+
+//   setClient(mqttClient);
+
+//   return () => {
+//     if (mqttClient && mqttClient.isConnected()) {
+//       mqttClient.disconnect();
+//     }
+//   };
+  
+// }, []);
+
+// const [client, setClient] = useState<Client | null>(null);
+  // const [isConnected, setIsConnected] = useState(false);
