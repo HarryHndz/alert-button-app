@@ -1,4 +1,4 @@
-import { IPassword } from '@/data/IPassword';
+import { IPassword } from '@/data/interfaces/IPassword';
 import * as Yup from 'yup';
 
 export const passwordValidation = ():Yup.ObjectSchema<IPassword>=>{

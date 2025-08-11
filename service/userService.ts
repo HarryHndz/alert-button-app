@@ -1,8 +1,8 @@
-import { IAlert } from '@/data/IAlert';
-import { IContact } from '@/data/IContact';
-import { IResUser } from '@/data/IUser';
+import { IAlert } from '@/data/interfaces/IAlert';
+import { IContact } from '@/data/interfaces/IContact';
+import { IResUser } from '@/data/interfaces/IUser';
+import type { RegisterData } from '@/data/validations/validation';
 import api from '@/service/api';
-import type { RegisterData } from '@/validation/validation';
 import { AxiosError } from 'axios';
 
 export const registerUser = async (data: RegisterData): Promise<IResUser> => {

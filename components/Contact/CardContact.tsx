@@ -1,4 +1,4 @@
-import { IContact } from "@/data/IContact"
+import { IContact } from "@/data/interfaces/IContact"
 import { Image } from "expo-image"
 import { Text, TouchableOpacity } from "react-native"
 import { Box } from "../ui/box"

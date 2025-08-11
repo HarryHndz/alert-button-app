@@ -1,5 +1,5 @@
-import { ILogin } from "@/data/ILogin";
-import { IUser } from "@/data/IUser";
+import { ILogin } from "@/data/interfaces/ILogin";
+import { IUser } from "@/data/interfaces/IUser";
 import { AxiosError } from "axios";
 import api from "./api";
 

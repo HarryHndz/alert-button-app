@@ -1,18 +1,18 @@
 import { CardContact } from '@/components/Contact/CardContact';
 import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-  ActionsheetIcon,
-  ActionsheetItem,
-  ActionsheetItemText
+    Actionsheet,
+    ActionsheetBackdrop,
+    ActionsheetContent,
+    ActionsheetDragIndicator,
+    ActionsheetDragIndicatorWrapper,
+    ActionsheetIcon,
+    ActionsheetItem,
+    ActionsheetItemText
 } from '@/components/ui/actionsheet';
 import { Box } from '@/components/ui/box';
 import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import { IContact } from '@/data/IContact';
+import { IContact } from '@/data/interfaces/IContact';
 import { deleteContact } from '@/service/contactService';
 import useStore from '@/store/useStore';
 import LocalStorage from '@/utils/storage';

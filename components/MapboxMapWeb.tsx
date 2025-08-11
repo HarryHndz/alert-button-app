@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { View } from 'react-native';
 
 interface MapboxMapProps {
@@ -7,6 +7,14 @@ interface MapboxMapProps {
   zoom?: number;
   style?: any;
   accessToken?: string;
+  alertLocation?: {
+    latitude: number;
+    longitude: number;
+    title?: string;
+    description?: string;
+  };
+  onLocationSelect?: (latitude: number, longitude: number) => void;
+  onMapReady?: () => void;
 }
 
 export default function MapboxMapWeb({ 
@@ -14,7 +22,10 @@ export default function MapboxMapWeb({
   longitude = -99.1332, 
   zoom = 10,
   style = { width: '100%', height: '100%' },
-  accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'
+  accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN',
+  alertLocation,
+  onLocationSelect,
+  onMapReady
 }: MapboxMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -42,11 +53,35 @@ export default function MapboxMapWeb({
           accessToken: accessToken
         });
 
-        // Agregar marcador
-        new mapboxgl.Marker()
+        // Marcador de ubicación actual
+        new mapboxgl.Marker({ color: '#3B82F6' })
           .setLngLat([longitude, latitude])
           .setPopup(new mapboxgl.Popup().setHTML('<h3>Tu ubicación</h3>'))
           .addTo(map);
+
+        // Marcador de alerta si existe
+        if (alertLocation) {
+          new mapboxgl.Marker({ color: '#EF4444' })
+            .setLngLat([alertLocation.longitude, alertLocation.latitude])
+            .setPopup(new mapboxgl.Popup().setHTML(`
+              <h3>${alertLocation.title || 'Alerta'}</h3>
+              <p>${alertLocation.description || ''}</p>
+            `))
+            .addTo(map);
+        }
+
+        // Evento de clic en el mapa
+        if (onLocationSelect) {
+          map.on('click', (e: any) => {
+            const { lng, lat } = e.lngLat;
+            onLocationSelect(lat, lng);
+          });
+        }
+
+        // Evento cuando el mapa está listo
+        map.on('load', () => {
+          onMapReady?.();
+        });
       }
     };
 
@@ -64,7 +99,7 @@ export default function MapboxMapWeb({
         document.head.removeChild(existingLink);
       }
     };
-  }, [latitude, longitude, zoom, accessToken]);
+  }, [latitude, longitude, zoom, accessToken, alertLocation, onLocationSelect, onMapReady]);
 
   return (
     <View style={style}>

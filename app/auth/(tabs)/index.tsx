@@ -1,10 +1,10 @@
 import { Box } from '@/components/ui/box';
 import { ButtonSpinner } from '@/components/ui/button';
-import { IAlert } from '@/data/IAlert';
+import { IAlert } from '@/data/interfaces/IAlert';
+import { useSession } from '@/hooks/useSession';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
 import useStore from '@/store/useStore';
-import LocalStorage from '@/utils/storage';
 import * as Location from 'expo-location';
 import { Client, Message } from 'paho-mqtt';
 import { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ const brokerHost  = "192.168.1.70"; // tu IP local
 const port = 8083;
 
 export default function HomeScreen() {
+  const {session} = useSession()
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const contacts = useStore((state)=>state.contacts)
   const setContactsStore = useStore((state)=>state.setContactsStore)
@@ -43,10 +44,8 @@ export default function HomeScreen() {
 
   const fetchContacts = async()=>{
     try {
-      setIsLoading(true)
-      const storage = new LocalStorage()
-      const session = await storage.getSession()
       if (!session) return 
+      setIsLoading(true)
       const contacts = await getContacts(session.token,session.id)
       setContactsStore(contacts)
     } catch (error) {
@@ -61,10 +60,7 @@ export default function HomeScreen() {
     try {
       setSending(true)
       const loc = await getLocation()
-      if (!loc) return setSending(false)
-      const storage = new LocalStorage()
-      const session = await storage.getSession()
-      if (!session) return setSending(false)
+      if (!loc || !session) return setSending(false)
       const payload: IAlert = {
         location_lat: loc.coords.latitude,
         location_lng: loc.coords.longitude,
@@ -88,38 +84,40 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    fetchContacts()
-  }, []);
+    if (session) {
+      fetchContacts()
+    }
+  }, [session]);
 
   useEffect(()=>{
-    if (!isLoading) {
-      const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
-      mqttClient.onConnectionLost = (responseObject) => {
-        console.log("Conexión perdida:", responseObject.errorMessage);
-        setIsConnected(false);
-      };
+    if (isLoading || !session)return
 
-      mqttClient.connect({
-        onSuccess: () => {
-          console.log("Conectado al broker");
-          setIsConnected(true);
-          mqttClient.subscribe(topic);
-        },
-        onFailure: (err) => {
-          console.log("Error al conectar", err);
-        },
-        useSSL: false,
-      });
+    const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
+    mqttClient.onConnectionLost = (responseObject) => {
+      console.log("Conexión perdida:", responseObject.errorMessage);
+      setIsConnected(false);
+    };
 
-      setClient(mqttClient);
-      return () => {
-        if (mqttClient && mqttClient.isConnected()) {
-          mqttClient.disconnect();
-        }
-      };
-    }
+    mqttClient.connect({
+      onSuccess: () => {
+        console.log("Conectado al broker");
+        setIsConnected(true);
+        mqttClient.subscribe(`${topic}/${session.id}`);
+      },
+      onFailure: (err) => {
+        console.log("Error al conectar", err);
+      },
+      useSSL: false,
+    });
+
+    setClient(mqttClient);
+    return () => {
+      if (mqttClient && mqttClient.isConnected()) {
+        mqttClient.disconnect();
+      }
+    };
     
-  },[isLoading])
+  },[isLoading,session])
 
   if (isLoading) {
     return(

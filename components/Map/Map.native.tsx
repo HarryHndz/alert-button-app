@@ -1,11 +1,30 @@
 import { SearchIcon } from '@/components/ui/icon'
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input'
 import { MAP_CONFIG } from '@/constants/MapConfig'
-import React from 'react'
+import { MapProps } from '@/data/types/Map'
 import { View } from 'react-native'
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 
-export default function Map() {
+export default function Map({ 
+  latitude = MAP_CONFIG.DEFAULT_LATITUDE,
+  longitude = MAP_CONFIG.DEFAULT_LONGITUDE,
+  zoom = 14,
+  alertLocation,
+  isConnected,
+  onLocationSelect,
+  onMapReady
+}: MapProps) {
+  
+  const initialRegion = {
+    latitude,
+    longitude,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  };
+
+  console.log("isconected",isConnected)
+  console.log("alertLocation",alertLocation)
+
   return (
     <View style={{flex:1}}>
       <Input variant='rounded' size='lg' className='absolute w-5/6 mx-8 z-10 top-10 bg-neutral-900'>
@@ -14,16 +33,35 @@ export default function Map() {
         </InputSlot>
         <InputField placeholder='Buscar...' />
       </Input>
+      
+      {/* Indicador de conexión MQTT */}
+      {isConnected !== undefined && (
+        <View className={`absolute top-24 right-8 w-3 h-3 rounded-full z-10 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+      )}
+      
       <MapView  
         provider={PROVIDER_GOOGLE}
         style={{width: '100%', height: '100%'}}
-        initialRegion={{
-          latitude: MAP_CONFIG.DEFAULT_LATITUDE,
-          longitude: MAP_CONFIG.DEFAULT_LONGITUDE,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+        initialRegion={initialRegion}
+        onMapReady={onMapReady}
+        onPress={(event) => {
+          const { latitude, longitude } = event.nativeEvent.coordinate;
+          onLocationSelect?.(latitude, longitude);
         }}
-      />
+      >
+        {/* Marcador de alerta si existe */}
+        {alertLocation && (
+          <Marker
+            coordinate={{
+              latitude: alertLocation.latitude,
+              longitude: alertLocation.longitude,
+            }}
+            title={alertLocation.title || 'Alerta'}
+            description={alertLocation.description}
+            pinColor="red"
+          />
+        )}
+      </MapView>
     </View>
   )
 }

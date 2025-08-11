@@ -1,6 +1,6 @@
 import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
-import { useSesion } from "@/hooks/useSesion";
+import { useSesion } from "@/hooks/useSession";
 import LocalStorage from "@/utils/storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";

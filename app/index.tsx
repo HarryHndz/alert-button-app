@@ -20,11 +20,11 @@ import {
   useToast,
 } from '@/components/ui/toast'
 import { VStack } from '@/components/ui/vstack'
-import { ILogin } from '@/data/ILogin'
+import { ILogin } from '@/data/interfaces/ILogin'
+import { loginValidation } from '@/data/validations/loginValidation'
 import { useVerifySession } from '@/hooks/useVerifySession'
 import { loginService } from '@/service/authService'
 import LocalStorage from '@/utils/storage'
-import { loginValidation } from '@/validation/loginValidation'
 import { Link, router } from 'expo-router'
 import { useFormik } from 'formik'
 import { useState } from 'react'

@@ -6,3 +6,5 @@ export interface IAlert {
   dive_type_id:number
   url:string
 }
+
+export interface IAlertGeolocation extends Pick<IAlert,'location_lat' | 'location_lng'>{}

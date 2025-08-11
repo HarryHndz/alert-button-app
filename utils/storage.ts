@@ -1,4 +1,4 @@
-import { IUser } from "@/data/IUser";
+import { IUser } from "@/data/interfaces/IUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default class LocalStorage {
   private readonly KEY_SESSION = 'session'

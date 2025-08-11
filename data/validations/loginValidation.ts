@@ -1,4 +1,4 @@
-import { ILogin } from '@/data/ILogin'
+import { ILogin } from '@/data/interfaces/ILogin'
 import * as yup from 'yup'
 
 export const loginValidation = ():yup.ObjectSchema<ILogin>=>{

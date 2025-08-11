@@ -7,8 +7,8 @@ import { Image } from 'expo-image';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { ScrollView, Text } from 'react-native';
+import { RegisterData, registerSchema } from '../data/validations/validation';
 import { registerUser } from '../service/userService';
-import { RegisterData, registerSchema } from '../validation/validation';
 
 const initialValues: RegisterData = {
   email: '',

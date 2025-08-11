@@ -1,4 +1,4 @@
-import { IContact } from "@/data/IContact"
+import { IContact } from "@/data/interfaces/IContact"
 import { AxiosError } from "axios"
 import api from "./api"
 

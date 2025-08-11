@@ -1,4 +1,4 @@
-import { IContact } from "@/data/IContact"
+import { IContact } from "@/data/interfaces/IContact"
 import { create } from "zustand"
 import { combine } from "zustand/middleware"
 
