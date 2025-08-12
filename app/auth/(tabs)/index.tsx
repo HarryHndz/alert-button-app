@@ -1,10 +1,10 @@
 import { Box } from '@/components/ui/box';
 import { ButtonSpinner } from '@/components/ui/button';
 import { IAlert } from '@/data/interfaces/IAlert';
+import { useContact } from '@/hooks/useContact';
 import { useSession } from '@/hooks/useSession';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
-import useStore from '@/store/useStore';
 import * as Location from 'expo-location';
 import { Client, Message } from 'paho-mqtt';
 import { useEffect, useState } from 'react';
@@ -16,9 +16,8 @@ const port = 8083;
 
 export default function HomeScreen() {
   const {session} = useSession()
+  const {contacts,setContactsStore} = useContact()
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const contacts = useStore((state)=>state.contacts)
-  const setContactsStore = useStore((state)=>state.setContactsStore)
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

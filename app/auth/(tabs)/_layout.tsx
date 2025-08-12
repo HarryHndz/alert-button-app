@@ -6,7 +6,6 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { Image } from 'expo-image';
 import { Link, Slot, Tabs, usePathname } from 'expo-router';
 import { House, MapPin, Phone } from 'lucide-react-native';
-import React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

@@ -1,20 +1,20 @@
 import { CardContact } from '@/components/Contact/CardContact';
 import {
-    Actionsheet,
-    ActionsheetBackdrop,
-    ActionsheetContent,
-    ActionsheetDragIndicator,
-    ActionsheetDragIndicatorWrapper,
-    ActionsheetIcon,
-    ActionsheetItem,
-    ActionsheetItemText
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  ActionsheetIcon,
+  ActionsheetItem,
+  ActionsheetItemText
 } from '@/components/ui/actionsheet';
 import { Box } from '@/components/ui/box';
 import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { IContact } from '@/data/interfaces/IContact';
+import { useContact } from '@/hooks/useContact';
 import { deleteContact } from '@/service/contactService';
-import useStore from '@/store/useStore';
 import LocalStorage from '@/utils/storage';
 import { router } from 'expo-router';
 import { EditIcon, PlusIcon, TrashIcon } from 'lucide-react-native';
@@ -23,8 +23,7 @@ import { Text, TouchableOpacity } from 'react-native';
 
 
 export default function Contact() {
-  const contacts = useStore((state)=>state.contacts)
-  const deleteContactStore = useStore((state)=>state.deleteContactStore)
+  const {contacts,deleteContactStore} = useContact()
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [showOptions, setShowOptions] = useState<boolean>(false)
   const [contactSelected, setContactSelected] = useState<IContact | null>(null)

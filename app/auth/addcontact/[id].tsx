@@ -5,9 +5,9 @@ import { FormControl } from '@/components/ui/form-control';
 import { PhoneIcon } from '@/components/ui/icon';
 import { IContact } from '@/data/interfaces/IContact';
 import { contactSchema, contactSchemaUpdate } from '@/data/validations/addContactValidation';
+import { useContact } from '@/hooks/useContact';
 import { updateContact } from '@/service/contactService';
 import { addContact } from '@/service/userService';
-import useStore from '@/store/useStore';
 import LocalStorage from '@/utils/storage';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -19,9 +19,7 @@ import { Platform, ScrollView, Text, useWindowDimensions } from 'react-native';
 
 export default function AddContact() {
   const {id} = useLocalSearchParams<{id?:string}>()
-  const getContactByIdStore = useStore((state)=>state.getContactByIdStore)
-  const updateContactStore = useStore((state)=>state.updateContactStore)
-  const addContactStore = useStore((state)=>state.addContactStore)
+  const {getContactByIdStore,addContactStore,updateContactStore} = useContact()
   const [initialValues, setInitialValues] = useState<IContact>({
     id:0,
     name: '',
@@ -68,11 +66,9 @@ export default function AddContact() {
   });
 
   useEffect(()=>{
-    console.log("id",id)
     if (id && id !== '0') {
       const contact = getContactByIdStore(parseInt(id))
       if (contact) {
-        console.log("entro aqui en el useEffect",contact)
         setInitialValues({
           id:contact.id,
           name: contact.name,
