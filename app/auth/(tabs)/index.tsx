@@ -6,12 +6,13 @@ import { useSession } from '@/hooks/useSession';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
 import * as Location from 'expo-location';
+import { Link } from 'expo-router';
 import { Client, Message } from 'paho-mqtt';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
 const topic = 'emergency/location';
-const brokerHost  = "192.168.1.70"; // tu IP local
+const brokerHost  = "192.168.1.72"; // tu IP local
 const port = 8083;
 
 export default function HomeScreen() {
@@ -184,76 +185,10 @@ export default function HomeScreen() {
           <>
             <ButtonSpinner color='black' />
             <Text className='text-neutral-600 text-center text-xs'>Obteniendo ubicación...</Text>
+            <Link href={{pathname:'/auth/map',params:{id:6}}} >IR a la prueba</Link>
           </>
         )}
       </Box>
     </Box>
   );
 }
-
-
-// const handlePress = async () => {
-//   setSending(true);
-
-//   const loc = await getLocation();
-//   if (!loc) {
-//     setSending(false);
-//     return;
-//   }
-
-//   const payload: INewAlert = {
-//     location_lat: loc.coords.latitude,
-//     location_lng: loc.coords.longitude,
-//   };
-
-//   try {
-//     if (client && isConnected) {
-//       const msg = new Message(JSON.stringify(payload));
-//       msg.destinationName = topic;
-//       client.send(msg);
-//     }
-//     const reponse = await newAlert(payload)
-//     console.log("Respuesta de la alerta", reponse)
-
-//     console.log('Ubicación enviada:', payload);
-//   } catch (err) {
-//     console.error('Error al enviar la ubicación', err);
-//   } finally {
-//   }
-// };
-
-
-
-// useEffect(() => {
-//   fetchContacts()
-  
-//   const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
-//   mqttClient.onConnectionLost = (responseObject) => {
-//     console.log("Conexión perdida:", responseObject.errorMessage);
-//     setIsConnected(false);
-//   };
-
-//   mqttClient.connect({
-//     onSuccess: () => {
-//       console.log("Conectado al broker");
-//       setIsConnected(true);
-//       mqttClient.subscribe(topic);
-//     },
-//     onFailure: (err) => {
-//       console.log("Error al conectar", err);
-//     },
-//     useSSL: false,
-//   });
-
-//   setClient(mqttClient);
-
-//   return () => {
-//     if (mqttClient && mqttClient.isConnected()) {
-//       mqttClient.disconnect();
-//     }
-//   };
-  
-// }, []);
-
-// const [client, setClient] = useState<Client | null>(null);
-  // const [isConnected, setIsConnected] = useState(false);

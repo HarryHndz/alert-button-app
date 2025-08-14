@@ -1,3 +1,5 @@
+import { IUser } from "@/data/interfaces/IUser"
+import { refreshSession } from "@/service/authService"
 import LocalStorage from "@/utils/storage"
 import { router } from "expo-router"
 import { useEffect, useState } from "react"
@@ -8,25 +10,40 @@ export const useVerifySession = ()=>{
   useEffect(()=>{
     const verifySession = async()=>{
       try {
-        console.log('🔍 Iniciando verificación de sesión...')
-        console.log('🌐 Plataforma:', Platform.OS)
-        
-        // En web, agregar un pequeño delay para asegurar que AsyncStorage esté listo
         if (Platform.OS === 'web') {
           await new Promise(resolve => setTimeout(resolve, 100))
         }
-        
         const storage = new LocalStorage()
-        console.log('📦 Storage inicializado')
-        
         const session = await storage.getSession()
-        console.log('🔑 Sesión obtenida:', session)
         
         if (!session) {
           console.log('❌ No hay sesión')
+          await storage.removeSession()
           return setIsLoading(false)
         }
-        
+
+        if (!session.dateEndLogin) {
+          console.log('❌ No hay fecha de fin de sesión')
+          await storage.removeSession()
+          return setIsLoading(false)
+        }
+
+        if(new Date() > new Date(session.dateEndLogin)){
+          console.log('❌ Sesión expirada')
+          const newToken = await refreshSession(session.token)
+          if (!newToken) {
+            await storage.removeSession()
+            return setIsLoading(false)
+          }
+          const dateLogin = new Date()
+            const newSession:IUser = {
+              ...session,
+              token:newToken,
+              dateLogin:dateLogin,
+              dateEndLogin:new Date(dateLogin.getTime() + 23 * 60 * 60 * 1000)
+            }
+            await storage.setSession(newSession)
+        }
         console.log('✅ Sesión válida encontrada, redirigiendo a home...')
         setIsLoading(false)
         router.replace('/auth/(tabs)')

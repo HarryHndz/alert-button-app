@@ -14,6 +14,13 @@ export default function Map({
   onLocationSelect,
   onMapReady
 }: MapProps) {
+  console.log("Map.web.tsx - Props recibidas:", {
+    latitude,
+    longitude,
+    zoom,
+    alertLocation,
+    isConnected
+  });
   
   return(
     <View style={{flex:1}}>

@@ -2,18 +2,20 @@ import { SearchIcon } from '@/components/ui/icon'
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input'
 import { MAP_CONFIG } from '@/constants/MapConfig'
 import { MapProps } from '@/data/types/Map'
+import { useEffect, useRef } from 'react'
 import { View } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 
 export default function Map({ 
   latitude = MAP_CONFIG.DEFAULT_LATITUDE,
   longitude = MAP_CONFIG.DEFAULT_LONGITUDE,
-  zoom = 14,
   alertLocation,
   isConnected,
   onLocationSelect,
   onMapReady
 }: MapProps) {
+  
+  const mapRef = useRef<MapView>(null);
   
   const initialRegion = {
     latitude,
@@ -25,6 +27,19 @@ export default function Map({
   console.log("isconected",isConnected)
   console.log("alertLocation",alertLocation)
 
+  useEffect(() => {
+    if (alertLocation && mapRef.current) {
+      const newRegion = {
+        latitude: Number(alertLocation.latitude),
+        longitude: Number(alertLocation.longitude),
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      };
+      
+      mapRef.current.animateToRegion(newRegion, 1000);
+    }
+  }, [alertLocation]);
+
   return (
     <View style={{flex:1}}>
       <Input variant='rounded' size='lg' className='absolute w-5/6 mx-8 z-10 top-10 bg-neutral-900'>
@@ -34,12 +49,12 @@ export default function Map({
         <InputField placeholder='Buscar...' />
       </Input>
       
-      {/* Indicador de conexión MQTT */}
       {isConnected !== undefined && (
         <View className={`absolute top-24 right-8 w-3 h-3 rounded-full z-10 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
       )}
       
       <MapView  
+        ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={{width: '100%', height: '100%'}}
         initialRegion={initialRegion}
@@ -53,8 +68,8 @@ export default function Map({
         {alertLocation && (
           <Marker
             coordinate={{
-              latitude: alertLocation.latitude,
-              longitude: alertLocation.longitude,
+              latitude: Number(alertLocation.latitude),
+              longitude: Number(alertLocation.longitude),
             }}
             title={alertLocation.title || 'Alerta'}
             description={alertLocation.description}

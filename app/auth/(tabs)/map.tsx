@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 
 const topic = 'emergency/location';
-const brokerHost  = "192.168.1.70"; // tu IP local
+const brokerHost  = "192.168.1.72"; // tu IP local
 const port = 8083;
 
 export default function MapLayout() {

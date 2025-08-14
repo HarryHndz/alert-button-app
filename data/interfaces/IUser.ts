@@ -7,6 +7,8 @@ export interface IUser{
   phone?:string,
   active:boolean,
   username?:string,
+  dateLogin:Date,
+  dateEndLogin:Date
 }
 
 export interface IResUser {
