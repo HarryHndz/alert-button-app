@@ -8,7 +8,7 @@ import { newAlert } from '@/service/userService';
 import * as Location from 'expo-location';
 import { Link } from 'expo-router';
 import { Client, Message } from 'paho-mqtt';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
 const topic = 'emergency/location';
@@ -24,6 +24,8 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [client, setClient] = useState<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const watchingPositionRef = useRef<Location.LocationSubscription | null>(null)
+
   const getLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -31,9 +33,8 @@ export default function HomeScreen() {
         setErrorMsg('Permiso denegado para acceder a la ubicación');
         return null;
       }
-
       const loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc);
+      // setLocation(loc);
       return loc;
     } catch (error) {
       console.error(error);
@@ -56,6 +57,66 @@ export default function HomeScreen() {
     }
   }
 
+
+  const handleWatchingPosition = async()=>{
+    try {
+      if (watchingPositionRef.current) {
+        watchingPositionRef.current.remove()
+        watchingPositionRef.current = null 
+      }
+
+      const {status} = await Location.requestForegroundPermissionsAsync()
+      if (status !== 'granted') return
+      
+      watchingPositionRef.current = await Location.watchPositionAsync(
+        {
+          accuracy:Location.Accuracy.Balanced,
+          timeInterval:10000,
+          distanceInterval:5,
+        },
+        (location)=>{
+          console.log('location',location)
+          setLocation(location)
+        }
+      )
+
+    } catch (error) {
+      console.log('error',error)
+    }
+  }
+  const handleStopWatchingPosition = ()=>{
+    if (watchingPositionRef.current) {
+      watchingPositionRef.current.remove()
+      watchingPositionRef.current = null
+    }
+  }
+  const handleConnectBroker = ()=>{
+    try {
+      if (!session) return
+      const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
+      mqttClient.onConnectionLost = (responseObject) => {
+        console.log("Conexión perdida:", responseObject.errorMessage);
+        setIsConnected(false);
+        setTimeout(handleConnectBroker, 3000);
+      };
+      mqttClient.connect({
+        onSuccess: () => {
+          console.log("Conectado al broker");
+          setIsConnected(true);
+          mqttClient.subscribe(`${topic}/${session.id}`);
+        },
+        onFailure: (err) => {
+          console.log("Error al conectar", err);
+          setTimeout(handleConnectBroker, 3000);
+        },
+        useSSL: false,
+      });
+
+      setClient(mqttClient);
+    } catch (error) {
+      console.log('error en handleConnectBroker',error)
+    }
+  }
   const handleNewAlert = async () => {
     try {
       setSending(true)
@@ -70,11 +131,8 @@ export default function HomeScreen() {
         url:`http://localhost:8081/auth/map?userId=${session.id}`
       }
       const response = await newAlert(session.token,payload)
-      if (client && isConnected) {
-        const msg = new Message(JSON.stringify(payload));
-        msg.destinationName = topic;
-        client.send(msg);
-      }
+      handleConnectBroker()
+      handleWatchingPosition()
       console.log('response',response)
     } catch (error) {
       console.log('error',error)
@@ -89,35 +147,23 @@ export default function HomeScreen() {
     }
   }, [session]);
 
+  
+
   useEffect(()=>{
-    if (isLoading || !session)return
+    if (!client || !isConnected || !session || !location) return
+    const msg = new Message(JSON.stringify(location));
+    msg.destinationName = `${topic}/${session.id}`
+    client.send(msg)
+  },[location])
 
-    const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
-    mqttClient.onConnectionLost = (responseObject) => {
-      console.log("Conexión perdida:", responseObject.errorMessage);
-      setIsConnected(false);
-    };
-
-    mqttClient.connect({
-      onSuccess: () => {
-        console.log("Conectado al broker");
-        setIsConnected(true);
-        mqttClient.subscribe(`${topic}/${session.id}`);
-      },
-      onFailure: (err) => {
-        console.log("Error al conectar", err);
-      },
-      useSSL: false,
-    });
-
-    setClient(mqttClient);
-    return () => {
-      if (mqttClient && mqttClient.isConnected()) {
-        mqttClient.disconnect();
+  useEffect(()=>{
+    return()=>{
+      if (client && client.isConnected()) {
+        client.disconnect()
+        handleStopWatchingPosition()
       }
-    };
-    
-  },[isLoading,session])
+    }
+  },[])
 
   if (isLoading) {
     return(
@@ -192,3 +238,34 @@ export default function HomeScreen() {
     </Box>
   );
 }
+
+
+// useEffect(()=>{
+//   if (isLoading || !session)return
+
+//   const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
+//   mqttClient.onConnectionLost = (responseObject) => {
+//     console.log("Conexión perdida:", responseObject.errorMessage);
+//     setIsConnected(false);
+//   };
+
+//   mqttClient.connect({
+//     onSuccess: () => {
+//       console.log("Conectado al broker");
+//       setIsConnected(true);
+//       mqttClient.subscribe(`${topic}/${session.id}`);
+//     },
+//     onFailure: (err) => {
+//       console.log("Error al conectar", err);
+//     },
+//     useSSL: false,
+//   });
+
+//   setClient(mqttClient);
+//   return () => {
+//     if (mqttClient && mqttClient.isConnected()) {
+//       mqttClient.disconnect();
+//     }
+//   };
+  
+// },[isLoading,session])

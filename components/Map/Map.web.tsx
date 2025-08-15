@@ -31,7 +31,6 @@ export default function Map({
         <InputField placeholder='Buscar...' />
       </Input>
       
-      {/* Indicador de conexión MQTT */}
       {isConnected !== undefined && (
         <View className={`absolute top-24 right-8 w-3 h-3 rounded-full z-10 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
       )}
