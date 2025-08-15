@@ -11,7 +11,7 @@ export const useVerifySession = ()=>{
     const verifySession = async()=>{
       try {
         if (Platform.OS === 'web') {
-          await new Promise(resolve => setTimeout(resolve, 100))
+          await new Promise(resolve => setTimeout(resolve, 300))
         }
         const storage = new LocalStorage()
         const session = await storage.getSession()

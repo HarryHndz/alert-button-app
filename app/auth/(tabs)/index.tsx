@@ -1,19 +1,18 @@
 import { Box } from '@/components/ui/box';
-import { ButtonSpinner } from '@/components/ui/button';
+import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { IAlert } from '@/data/interfaces/IAlert';
 import { useContact } from '@/hooks/useContact';
 import { useSession } from '@/hooks/useSession';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
 import * as Location from 'expo-location';
-import { Link } from 'expo-router';
 import { Client, Message } from 'paho-mqtt';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
-const topic = 'emergency/location';
-const brokerHost  = "192.168.1.72"; // tu IP local
-const port = 8083;
+const brokerHost = process.env.EXPO_PUBLIC_BROKER_HOST ?? ''
+const port = Number(process.env.EXPO_PUBLIC_BROKER_PORT) ?? 0
+const topic = process.env.EXPO_PUBLIC_TOPIC ?? ''
 
 export default function HomeScreen() {
   const {session} = useSession()
@@ -34,7 +33,6 @@ export default function HomeScreen() {
         return null;
       }
       const loc = await Location.getCurrentPositionAsync({});
-      // setLocation(loc);
       return loc;
     } catch (error) {
       console.error(error);
@@ -56,40 +54,35 @@ export default function HomeScreen() {
       setIsLoading(false)
     }
   }
-
-
-  const handleWatchingPosition = async()=>{
-    try {
-      if (watchingPositionRef.current) {
-        watchingPositionRef.current.remove()
-        watchingPositionRef.current = null 
-      }
-
-      const {status} = await Location.requestForegroundPermissionsAsync()
-      if (status !== 'granted') return
-      
-      watchingPositionRef.current = await Location.watchPositionAsync(
-        {
-          accuracy:Location.Accuracy.Balanced,
-          timeInterval:10000,
-          distanceInterval:5,
-        },
-        (location)=>{
-          console.log('location',location)
-          setLocation(location)
-        }
-      )
-
-    } catch (error) {
-      console.log('error',error)
-    }
-  }
   const handleStopWatchingPosition = ()=>{
     if (watchingPositionRef.current) {
+      console.log("remove")
       watchingPositionRef.current.remove()
       watchingPositionRef.current = null
     }
   }
+
+  const handleWatchingPosition = async()=>{
+    try {
+      handleStopWatchingPosition()
+      const {status} = await Location.requestForegroundPermissionsAsync()
+      if (status !== 'granted') return
+      watchingPositionRef.current = await Location.watchPositionAsync(
+        {
+          accuracy:Location.Accuracy.Balanced,
+          timeInterval:5000,
+          distanceInterval:1,
+        },
+        (location)=>{
+          setLocation(location)
+        }
+      )
+    } catch (error) {
+      console.log('error',error)
+      setErrorMsg('Error al obtener la ubicación')
+    }
+  }
+  
   const handleConnectBroker = ()=>{
     try {
       if (!session) return
@@ -97,17 +90,17 @@ export default function HomeScreen() {
       mqttClient.onConnectionLost = (responseObject) => {
         console.log("Conexión perdida:", responseObject.errorMessage);
         setIsConnected(false);
-        setTimeout(handleConnectBroker, 3000);
       };
       mqttClient.connect({
-        onSuccess: () => {
+        onSuccess: async() => {
           console.log("Conectado al broker");
           setIsConnected(true);
           mqttClient.subscribe(`${topic}/${session.id}`);
+          await handleWatchingPosition()
         },
         onFailure: (err) => {
           console.log("Error al conectar", err);
-          setTimeout(handleConnectBroker, 3000);
+          handleStopWatchingPosition()
         },
         useSSL: false,
       });
@@ -117,6 +110,7 @@ export default function HomeScreen() {
       console.log('error en handleConnectBroker',error)
     }
   }
+
   const handleNewAlert = async () => {
     try {
       setSending(true)
@@ -125,21 +119,27 @@ export default function HomeScreen() {
       const payload: IAlert = {
         location_lat: loc.coords.latitude,
         location_lng: loc.coords.longitude,
-        user_id: session.id,
+        user_id: Number(session.id),
         alert_type_id: 1,
         dive_type_id: 1,
         url:`http://localhost:8081/auth/map?userId=${session.id}`
       }
       const response = await newAlert(session.token,payload)
       handleConnectBroker()
-      handleWatchingPosition()
-      console.log('response',response)
     } catch (error) {
       console.log('error',error)
+      setErrorMsg('Error al enviar la alerta')
     } finally {
       setSending(false)
     }
   };
+  const handleDisconnectBroker = ()=>{
+    if (client && client.isConnected()) {
+      client.disconnect()
+      handleStopWatchingPosition()
+      setIsConnected(false)
+    }
+  }
 
   useEffect(() => {
     if (session) {
@@ -151,17 +151,17 @@ export default function HomeScreen() {
 
   useEffect(()=>{
     if (!client || !isConnected || !session || !location) return
-    const msg = new Message(JSON.stringify(location));
+    const msg = new Message(JSON.stringify({
+      location_lat:location.coords.latitude,
+      location_lng:location.coords.longitude}
+    ));
     msg.destinationName = `${topic}/${session.id}`
     client.send(msg)
   },[location])
 
   useEffect(()=>{
     return()=>{
-      if (client && client.isConnected()) {
-        client.disconnect()
-        handleStopWatchingPosition()
-      }
+      handleDisconnectBroker()
     }
   },[])
 
@@ -187,7 +187,7 @@ export default function HomeScreen() {
               width: Platform.OS === 'web' ? 300 : 220,
               height: Platform.OS === 'web' ? 300 : 220,
               borderRadius: 150,
-              backgroundColor: sending ? '#a94444' : '#dc6b6b',
+              backgroundColor: (sending || isConnected) ? '#a94444' : '#dc6b6b',
               borderWidth: 8,
               borderColor: '#a94444',
               alignItems: 'center',
@@ -200,7 +200,7 @@ export default function HomeScreen() {
               opacity: sending ? 0.7 : 1,
             }}
             onPress={handleNewAlert}
-            disabled={sending}
+            disabled={sending || isConnected}
             >
             {sending ? (
               <ButtonSpinner color="white" />
@@ -220,6 +220,7 @@ export default function HomeScreen() {
             )
           }
         </Text>
+        
         {errorMsg ? (
           <Text className="text-red-500 text-center mb-4">{errorMsg}</Text>
         ) : location ? (
@@ -231,41 +232,19 @@ export default function HomeScreen() {
           <>
             <ButtonSpinner color='black' />
             <Text className='text-neutral-600 text-center text-xs'>Obteniendo ubicación...</Text>
-            <Link href={{pathname:'/auth/map',params:{id:6}}} >IR a la prueba</Link>
+
           </>
         )}
+        {
+          isConnected && (
+            <Button className='bg-red-500' onPress={handleDisconnectBroker}>
+              <ButtonText className='text-white'>
+                Desconectar
+              </ButtonText> 
+            </Button>
+          )
+        }
       </Box>
     </Box>
   );
 }
-
-
-// useEffect(()=>{
-//   if (isLoading || !session)return
-
-//   const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
-//   mqttClient.onConnectionLost = (responseObject) => {
-//     console.log("Conexión perdida:", responseObject.errorMessage);
-//     setIsConnected(false);
-//   };
-
-//   mqttClient.connect({
-//     onSuccess: () => {
-//       console.log("Conectado al broker");
-//       setIsConnected(true);
-//       mqttClient.subscribe(`${topic}/${session.id}`);
-//     },
-//     onFailure: (err) => {
-//       console.log("Error al conectar", err);
-//     },
-//     useSSL: false,
-//   });
-
-//   setClient(mqttClient);
-//   return () => {
-//     if (mqttClient && mqttClient.isConnected()) {
-//       mqttClient.disconnect();
-//     }
-//   };
-  
-// },[isLoading,session])

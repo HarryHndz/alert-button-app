@@ -5,9 +5,9 @@ import { Client } from 'paho-mqtt';
 import { useEffect, useState } from "react";
 
 
-const topic = 'emergency/location';
-const brokerHost  = "192.168.1.72"; // tu IP local
-const port = 8083;
+const brokerHost = process.env.EXPO_PUBLIC_BROKER_HOST ?? ''
+const port = Number(process.env.EXPO_PUBLIC_BROKER_PORT) ?? 0
+const topic = process.env.EXPO_PUBLIC_TOPIC ?? ''
 
 export default function MapLayout() {
   const {id} = useLocalSearchParams<{id?:string}>()
