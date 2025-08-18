@@ -23,8 +23,8 @@ export default function TabLayout() {
         {!isAddContact && (
           <View className="w-full flex flex-row items-center justify-between px-8 py-4 bg-neutral-900">
             <View className="flex flex-row items-center gap-4">
-              <Image source={{uri: 'https://ui-avatars.com/api/?name=App'}} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#fff' }} />
-              <Text className="text-white text-lg font-bold">Nombre de la App</Text>
+              <Image source={{uri: 'https://ui-avatars.com/api/?name=SF'}} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#fff' }} />
+              <Text className="text-white text-lg font-bold">SafePulse</Text>
             </View>
             <View className="flex flex-row gap-8">
               <Link href="/auth/(tabs)" asChild>

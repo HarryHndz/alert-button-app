@@ -14,11 +14,10 @@ export const CardContact = ({contact, handleShowOptions}: CardContactProps) => {
       <TouchableOpacity onPress={handleShowOptions} className="w-full flex flex-row gap-2">
         <Box className='w-1/6'>
         <Image
-          source={require('@/assets/images/react-logo.png')}
+          source={require('@/assets/images/profile.png')}
           style={{
             width: 40,
             height: 40,
-            borderRadius: 40,
           }}
         />
       </Box>

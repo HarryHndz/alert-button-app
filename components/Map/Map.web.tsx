@@ -12,7 +12,6 @@ export default function Map({
   alertLocation,
   isConnected,
   onLocationSelect,
-  onMapReady
 }: MapProps) {
   console.log("Map.web.tsx - Props recibidas:", {
     latitude,
@@ -43,7 +42,6 @@ export default function Map({
         accessToken={MAP_CONFIG.MAPBOX_ACCESS_TOKEN}
         alertLocation={alertLocation}
         onLocationSelect={onLocationSelect}
-        onMapReady={onMapReady}
       />
     </View>
   )

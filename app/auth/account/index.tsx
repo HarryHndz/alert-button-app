@@ -1,13 +1,13 @@
 import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
-import { useSesion } from "@/hooks/useSession";
+import { useSession } from "@/hooks/useSession";
 import LocalStorage from "@/utils/storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ChevronRight, Lock, LogOut } from 'lucide-react-native';
 import { Pressable, Text } from "react-native";
 export default function DetailScreen() {
-  const {session} = useSesion()
+  const {session} = useSession()
   if (!session) return null
   
   const handleLogout = async()=>{
@@ -28,7 +28,7 @@ export default function DetailScreen() {
      <Box className="flex-row w-full items-center mb-10">
       <Box className="w-2/5 h-24">
         <Image 
-          source={require('@/assets/images/react-logo.png')}
+          source={require('@/assets/images/profile.png')}
           style={{width:'100%',height:'100%'}} 
           contentFit="contain"
         />

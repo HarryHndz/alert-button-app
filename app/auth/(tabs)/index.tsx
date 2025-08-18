@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, Text } from 'react-native';
 
 const brokerHost = process.env.EXPO_PUBLIC_BROKER_HOST ?? ''
-const port = Number(process.env.EXPO_PUBLIC_BROKER_PORT) ?? 0
+const port = Number(process.env.EXPO_PUBLIC_PORT) ?? 0
 const topic = process.env.EXPO_PUBLIC_TOPIC ?? ''
 
 export default function HomeScreen() {
@@ -25,48 +25,24 @@ export default function HomeScreen() {
   const [isConnected, setIsConnected] = useState(false);
   const watchingPositionRef = useRef<Location.LocationSubscription | null>(null)
 
-  const getLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permiso denegado para acceder a la ubicación');
-        return null;
-      }
-      const loc = await Location.getCurrentPositionAsync({});
-      return loc;
-    } catch (error) {
-      console.error(error);
-      setErrorMsg('Error al obtener la ubicación');
-      return null;
-    }
-  };
-
-  const fetchContacts = async()=>{
-    try {
-      if (!session) return 
-      setIsLoading(true)
-      const contacts = await getContacts(session.token,session.id)
-      setContactsStore(contacts)
-    } catch (error) {
-      console.log('error',error)
-      setErrorMsg('Error al obtener los contactos')
-    } finally {
-      setIsLoading(false)
-    }
-  }
   const handleStopWatchingPosition = ()=>{
     if (watchingPositionRef.current) {
-      console.log("remove")
-      watchingPositionRef.current.remove()
+      console.log("entro en el remove")
+      if (Platform.OS !== 'web') {
+        watchingPositionRef.current.remove()
+      }
       watchingPositionRef.current = null
     }
   }
 
-  const handleWatchingPosition = async()=>{
+  const handleWatchingPosition = async(sendAlertLocation?:(location: Location.LocationObject) => Promise<void>)=>{
     try {
       handleStopWatchingPosition()
+      console.log("entro en el requestForegroundPermissionsAsync")
       const {status} = await Location.requestForegroundPermissionsAsync()
       if (status !== 'granted') return
+      console.log("entro en el watchPositionAsync")
+      let isFirst = true
       watchingPositionRef.current = await Location.watchPositionAsync(
         {
           accuracy:Location.Accuracy.Balanced,
@@ -74,6 +50,14 @@ export default function HomeScreen() {
           distanceInterval:1,
         },
         (location)=>{
+          console.log("en la ubicación")
+          if (isFirst && sendAlertLocation) {
+            sendAlertLocation(location).catch((error)=>{
+              console.log('error al enviar la alerta',error)
+              setErrorMsg('Error al enviar la alerta')
+            })
+            isFirst = false
+          }
           setLocation(location)
         }
       )
@@ -85,7 +69,9 @@ export default function HomeScreen() {
   
   const handleConnectBroker = ()=>{
     try {
+      console.log("entro en el connectBroker")
       if (!session) return
+      console.log("entro en el if")
       const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
       mqttClient.onConnectionLost = (responseObject) => {
         console.log("Conexión perdida:", responseObject.errorMessage);
@@ -114,27 +100,33 @@ export default function HomeScreen() {
   const handleNewAlert = async () => {
     try {
       setSending(true)
-      const loc = await getLocation()
-      if (!loc || !session) return setSending(false)
-      const payload: IAlert = {
-        location_lat: loc.coords.latitude,
-        location_lng: loc.coords.longitude,
-        user_id: Number(session.id),
-        alert_type_id: 1,
-        dive_type_id: 1,
-        url:`http://localhost:8081/auth/map?userId=${session.id}`
-      }
-      const response = await newAlert(session.token,payload)
-      handleConnectBroker()
+      console.log("entro en el try de handleNewAlert")
+      if (!session) return setSending(false)
+      console.log("entro en el if de handleNewAlert")
+      await handleWatchingPosition(async (location)=>{
+        const payload: IAlert = {
+          location_lat: location.coords.latitude,
+          location_lng: location.coords.longitude,
+          user_id: Number(session.id),
+          alert_type_id: 1,
+          dive_type_id: 1,
+          url:`http://localhost:8081/auth/map?userId=${session.id}`
+        }
+        await newAlert(session.token,payload)
+        handleConnectBroker()
+      })
+      console.log("despues de handleWatchingPosition")
     } catch (error) {
       console.log('error',error)
       setErrorMsg('Error al enviar la alerta')
     } finally {
       setSending(false)
     }
-  };
+  }
+
   const handleDisconnectBroker = ()=>{
     if (client && client.isConnected()) {
+      console.log("Desconectando del broker");
       client.disconnect()
       handleStopWatchingPosition()
       setIsConnected(false)
@@ -142,10 +134,23 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
+    const fetchContacts = async()=>{
+      try {
+        if (!session) return 
+        setIsLoading(true)
+        const contacts = await getContacts(session.token,session.id)
+        setContactsStore(contacts)
+      } catch (error) {
+        console.log('error',error)
+        setErrorMsg('Error al obtener los contactos')
+      } finally {
+        setIsLoading(false)
+      }
+    }
     if (session) {
       fetchContacts()
     }
-  }, [session]);
+  }, [session,setContactsStore]);
 
   
 
@@ -157,13 +162,8 @@ export default function HomeScreen() {
     ));
     msg.destinationName = `${topic}/${session.id}`
     client.send(msg)
-  },[location])
+  },[location,client,isConnected,session])
 
-  useEffect(()=>{
-    return()=>{
-      handleDisconnectBroker()
-    }
-  },[])
 
   if (isLoading) {
     return(
@@ -173,6 +173,7 @@ export default function HomeScreen() {
     )
   }
 
+  console.log("sending",sending)
 
   return (
     <Box className="flex-1 bg-neutral-900 w-full h-full justify-center items-center">
@@ -230,8 +231,7 @@ export default function HomeScreen() {
           </>
         ) : (
           <>
-            <ButtonSpinner color='black' />
-            <Text className='text-neutral-600 text-center text-xs'>Obteniendo ubicación...</Text>
+            <Text className='text-neutral-600 text-center text-xs'>Presiona el botón para obtener tu ubicación.</Text>
 
           </>
         )}

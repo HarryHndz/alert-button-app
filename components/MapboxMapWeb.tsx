@@ -57,7 +57,6 @@ export default function MapboxMapWeb({
     script.onload = () => {
       if (mapRef.current && (window as any).mapboxgl && !isMapInitializedRef.current) {
         const mapboxgl = (window as any).mapboxgl;
-        
         const map = new mapboxgl.Map({
           container: mapRef.current,
           style: 'mapbox://styles/mapbox/streets-v12',
@@ -83,7 +82,6 @@ export default function MapboxMapWeb({
             onLocationSelect(lat, lng);
           });
         }
-
         // Evento cuando el mapa está listo
         map.on('load', () => {
           onMapReady?.();

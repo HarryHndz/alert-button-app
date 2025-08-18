@@ -17,5 +17,4 @@ export interface MapProps {
   
   // Callbacks
   onLocationSelect?: (latitude: number, longitude: number) => void;
-  onMapReady?: () => void;
 }

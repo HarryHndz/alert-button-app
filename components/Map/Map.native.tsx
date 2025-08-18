@@ -12,7 +12,6 @@ export default function Map({
   alertLocation,
   isConnected,
   onLocationSelect,
-  onMapReady
 }: MapProps) {
   
   const mapRef = useRef<MapView>(null);
@@ -58,7 +57,6 @@ export default function Map({
         provider={PROVIDER_GOOGLE}
         style={{width: '100%', height: '100%'}}
         initialRegion={initialRegion}
-        onMapReady={onMapReady}
         onPress={(event) => {
           const { latitude, longitude } = event.nativeEvent.coordinate;
           onLocationSelect?.(latitude, longitude);
