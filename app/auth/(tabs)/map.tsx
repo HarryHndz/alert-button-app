@@ -14,8 +14,18 @@ export default function MapLayout() {
   const {id} = useLocalSearchParams<{id?:string}>()
   const [isConnected, setIsConnected] = useState(false);
   const [alertLocation, setAlertLocation] = useState<IAlertGeolocation | null>(null)
-  
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location.href = `exp://${brokerHost}:${port}/--/auth/map?id=` + id;
+      }
+    }
+  }, [id]);
+
   useEffect(()=>{
+    console.log("id del usuario en el mapa",id)
     if (!id) return
     const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
     mqttClient.onConnectionLost = (responseObject) => {
@@ -48,9 +58,7 @@ export default function MapLayout() {
 
   const handleLocationSelect = (latitude: number, longitude: number) => {
     console.log('Ubicación seleccionada:', { latitude, longitude });
-    // Aquí puedes agregar lógica adicional cuando se selecciona una ubicación
   };
-;
 
   return (
     <Map 

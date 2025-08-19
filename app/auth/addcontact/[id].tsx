@@ -80,7 +80,7 @@ export default function AddContact() {
         })
       }
     }
-  },[id])
+  },[id,getContactByIdStore])
 
 
 
@@ -158,9 +158,8 @@ export default function AddContact() {
     </Box>
   );
 
-  // --- Renderizado ---
+
   if (isWeb) {
-    // VERSIÓN WEB (modal centrado con imagen de fondo)
     return (
       <Box className="flex-1">
         <Image

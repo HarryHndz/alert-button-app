@@ -1,4 +1,5 @@
-import { CardContact } from '@/components/Contact/CardContact';
+import { ContactList } from '@/components/Contact/ContactList';
+import { InputSearch } from '@/components/InputSearch';
 import {
   Actionsheet,
   ActionsheetBackdrop,
@@ -10,8 +11,6 @@ import {
   ActionsheetItemText
 } from '@/components/ui/actionsheet';
 import { Box } from '@/components/ui/box';
-import { SearchIcon } from '@/components/ui/icon';
-import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { IContact } from '@/data/interfaces/IContact';
 import { useContact } from '@/hooks/useContact';
 import { deleteContact } from '@/service/contactService';
@@ -71,26 +70,13 @@ export default function Contact() {
       <Text className='text-white text-2xl font-bold pl-5'>Contactos de emergencia</Text>
       <Text className='text-white text-sm pl-5'>{contactsFiltered.length} contactos registrados</Text>
       <Box className='flex flex-row justify-between gap-2 px-5 mt-5'>
-        <Input variant='outline' size='lg' className='w-5/6'>
-          <InputSlot className='pl-5'>
-            <InputIcon as={SearchIcon} />
-          </InputSlot>
-          <InputField placeholder='Buscar...' value={searchFilter} onChangeText={setSearchFilter} />
-        </Input>
+        <InputSearch searchFilter={searchFilter} setSearchFilter={setSearchFilter} />
         <TouchableOpacity onPress={()=>router.navigate('/auth/addcontact/0')} className='w-1/6 bg-blue-950 rounded-lg items-center justify-center'>
           <PlusIcon color='white' />
         </TouchableOpacity>
       </Box>
       <Box className='flex flex-col gap-5 mt-5 px-5'>
-        {
-          contactsFiltered.length > 0 ? (
-            contactsFiltered.map((contact)=>(
-              <CardContact key={contact.id} contact={contact} handleShowOptions={()=>handleShowOptions(contact)} />
-            ))
-          ) : (
-            <Text className='text-white text-center'>No hay contactos registrados</Text>
-          )
-        }
+        <ContactList contacts={contactsFiltered} handlePress={handleShowOptions} />
         <Actionsheet isOpen={showOptions} onClose={handleCloseOptions} snapPoints={[20]}>
           <ActionsheetBackdrop />
           <ActionsheetContent>

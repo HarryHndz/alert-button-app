@@ -60,6 +60,11 @@ export const newAlert = async (token:string,data:IAlert) => {
       dive_type_id: data.dive_type_id,
       location_lat: data.location_lat,
       location_lng: data.location_lng,
+      real_time_url:data.url
+    },{
+      headers:{
+        Authorization: `Bearer ${token}`
+      }
     })
     return response.data
   } catch (error) {

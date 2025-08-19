@@ -49,11 +49,9 @@ export default function Register() {
 
   return (
     <Box className="flex-1 flex flex-col md:flex-row w-full h-screen md:gap-x-12">
-      {/* Imagen a la izquierda */}
       <Box className="hidden md:flex flex-1 bg-black items-center justify-center">
         <Image source={{uri: 'https://w.wallhaven.cc/full/6l/wallhaven-6lkyeq.png'}} style={{ width: '100%', height: '100%' }} />
       </Box>
-      {/* Formulario a la derecha */}
       <Box className="w-full md:w-2/5 flex flex-col justify-center items-center bg-neutral-900 h-full md:px-12">
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
