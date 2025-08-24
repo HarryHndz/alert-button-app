@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+/**
+ * Axios instance for API calls
+ */
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_URL_SERVER ?? '',
   headers: {

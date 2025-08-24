@@ -4,6 +4,11 @@ import { AxiosError } from "axios";
 import api from "./api";
 
 
+/**
+ * Login service
+ * @param dataAuth - login credentials
+ * @returns user - IUser
+ */
 export const loginService = async(dataAuth:ILogin):Promise<IUser>=>{
   try {
     const response = await api.post('/auth/login',{
@@ -11,7 +16,6 @@ export const loginService = async(dataAuth:ILogin):Promise<IUser>=>{
       password:dataAuth.password
     })
     const data = response.data
-    console.log('data',response.data)
     const dateLogin = new Date()
     const responseData:IUser ={
       id:data.user.id,
@@ -35,6 +39,11 @@ export const loginService = async(dataAuth:ILogin):Promise<IUser>=>{
   }
 }
 
+/**
+ * Logout service
+ * @param token - user token
+ * @returns void
+ */
 export const logoutService = async(token:string):Promise<void>=>{
   try {
     await api.post('/auth/logout',{},{
@@ -51,6 +60,12 @@ export const logoutService = async(token:string):Promise<void>=>{
   }
 }
 
+/**
+ * Change password service
+ * @param currentPassword - current user password
+ * @param newPassword - new user password
+ * @param token - user token
+ */
 export const changePasswordService = async(currentPassword:string,newPassword:string,token:string):Promise<void>=>{
   try {
     await api.post('/auth/change-password',{
@@ -71,6 +86,11 @@ export const changePasswordService = async(currentPassword:string,newPassword:st
   }
 }
 
+/**
+ * Verify user session
+ * @param token - user token
+ * @returns user profile data
+ */
 export const verifySessionActivate =async(token:string):Promise<any>=>{
   try {
     const response = await api.get('/auth/profile',{
@@ -78,7 +98,6 @@ export const verifySessionActivate =async(token:string):Promise<any>=>{
         Authorization: `Bearer ${token}`
       }
     })
-    console.log('response',response.data)
     const data = response.data
     return data
   } catch (error) {
@@ -90,6 +109,12 @@ export const verifySessionActivate =async(token:string):Promise<any>=>{
   }
 }
 
+
+/**
+ * Refresh user session
+ * @param token - user token
+ * @returns new access token
+ */
 export const refreshSession =async(token:string):Promise<string>=>{
   try {
     const response = await api.post('/auth/refresh',{

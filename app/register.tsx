@@ -6,7 +6,7 @@ import { EyeIcon, EyeOffIcon, MailIcon, UnlockIcon } from '@/components/ui/icon'
 import { useErrorToast } from '@/hooks/useErrorToast';
 import { Image } from 'expo-image';
 import { useFormik } from 'formik';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { RegisterData, registerSchema } from '../data/validations/validation';
 import { registerUser } from '../service/userService';

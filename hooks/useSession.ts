@@ -3,7 +3,10 @@ import LocalStorage from "@/utils/storage"
 import { router } from "expo-router"
 import { useEffect, useState } from "react"
 
-
+/**
+ * Custom hook to access user session
+ * @returns session - IUser | null
+ */
 export const useSession = ()=>{
   const [session,setSession] = useState<IUser | null>(null)
   useEffect(()=>{

@@ -2,6 +2,11 @@ import { ToastError } from "@/components/ToastError"
 import { useToast } from "@/components/ui/toast"
 import { useCallback, useState } from "react"
 
+
+/**
+ * Custom hook to show error toast messages
+ * @returns showErrorToast() - function to show error toast
+ */
 export const useErrorToast = ()=>{
   const {show,close,isActive} = useToast()
   const [toastId,setToastId] = useState<number>(0)

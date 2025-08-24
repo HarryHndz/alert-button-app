@@ -19,7 +19,6 @@ export default function TabLayout() {
   if (isWeb) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#18181b' }}>
-        {/* Header web - solo mostrar si NO está en addContact */}
         {!isAddContact && (
           <View className="w-full flex flex-row items-center justify-between px-8 py-4 bg-neutral-900">
             <View className="flex flex-row items-center gap-4">
@@ -41,13 +40,11 @@ export default function TabLayout() {
             
           </View>
         )}
-        {/* Contenido de la pestaña activa */}
         <Slot />
       </SafeAreaView>
     );
   }
 
-  // Móvil: tabs abajo
   return (
     <View style={{ flex: 1 }}>
       <Tabs
@@ -56,7 +53,6 @@ export default function TabLayout() {
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
-          // Eliminar position absolute para evitar conflictos con Stack
           tabBarStyle: {
             backgroundColor: 'transparent'
           }

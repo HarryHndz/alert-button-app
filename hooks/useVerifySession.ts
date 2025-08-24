@@ -5,8 +5,15 @@ import { router } from "expo-router"
 import { useEffect, useState } from "react"
 import { Platform } from "react-native"
 
+
+/**
+ * Custom hook to verify user session in LocalStorage to initialize app state
+ * @returns boolean - loading state
+ */
+
 export const useVerifySession = ()=>{
   const [isLoading, setIsLoading] = useState(true)
+
   useEffect(()=>{
     const verifySession = async()=>{
       try {
@@ -17,19 +24,16 @@ export const useVerifySession = ()=>{
         const session = await storage.getSession()
         
         if (!session) {
-          console.log('❌ No hay sesión')
           await storage.removeSession()
           return setIsLoading(false)
         }
 
         if (!session.dateEndLogin) {
-          console.log('❌ No hay fecha de fin de sesión')
           await storage.removeSession()
           return setIsLoading(false)
         }
 
         if(new Date() > new Date(session.dateEndLogin)){
-          console.log('❌ Sesión expirada')
           const newToken = await refreshSession(session.token)
           if (!newToken) {
             await storage.removeSession()
@@ -44,11 +48,10 @@ export const useVerifySession = ()=>{
             }
             await storage.setSession(newSession)
         }
-        console.log('✅ Sesión válida encontrada, redirigiendo a home...')
         setIsLoading(false)
         router.replace('/auth/(tabs)')
       } catch (error) {
-        console.error('💥 Error en verifySession:', error)
+        console.log(error)
         setIsLoading(false)
       }
     }
@@ -62,11 +65,10 @@ export const useVerifySession = ()=>{
             await verifySession()
             break
           } catch (error) {
-            console.log(`🔄 Intento ${i + 1} falló, reintentando...`)
+            console.log(error)
             if (i < 2) {
               await new Promise(resolve => setTimeout(resolve, 500))
             } else {
-              console.error('❌ Todos los intentos fallaron')
               setIsLoading(false)
             }
           }

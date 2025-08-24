@@ -2,7 +2,12 @@ import { IContact } from "@/data/interfaces/IContact"
 import { AxiosError } from "axios"
 import api from "./api"
 
-
+/**
+ * Get user emergency contacts
+ * @param token - user token
+ * @param userId - user ID
+ * @returns list of emergency contacts
+ */
 export const getContacts = async(token:string,userId:number):Promise<IContact[]>=>{
   try {
     const response = await api.get(`/emergency-contacts/user/${userId}`,{
@@ -31,6 +36,58 @@ export const getContacts = async(token:string,userId:number):Promise<IContact[]>
   }
 }
 
+/**
+ * Add a new emergency contact
+ * @param token - user token
+ * @param data - contact data
+ * @returns created contact
+ */
+export const addContact = async (token:string,data: IContact):Promise<IContact> => {
+  try {
+    const response = await api.post('emergency-contacts',
+      {
+        name:data.name,
+        user_id:data.userId,
+        last_name:data.lastName,
+        phone_number:data.phone,
+        relationship:data.relationship,
+        active:true,
+        contact_id:null
+              
+      },
+      {
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+    const contact = response.data
+    const responseContact:IContact = {
+      id:parseInt(contact.id),
+      name:contact.name,
+      lastName:contact.last_name,
+      phone:contact.phone_number,
+      relationship:contact.relationship,
+      active:contact.active,
+      userId:parseInt(contact.user_id),
+    }
+    return responseContact
+  } catch (error) {
+    if(error instanceof AxiosError){
+      console.log(error.response?.data)
+      throw error.response?.data.message ?? 'Error al crear el contacto'
+    }
+    throw 'Error al crear el contacto'
+  }
+  
+}
+
+/**
+ * update a emergency contact
+ * @param token - user token
+ * @param dataContact - contact data
+ * @returns updated contact
+ */
 export const updateContact = async(token:string,dataContact:IContact):Promise<IContact>=>{
   try {
     const response = await api.patch(`/emergency-contacts/${dataContact.id}`,{
@@ -66,6 +123,12 @@ export const updateContact = async(token:string,dataContact:IContact):Promise<IC
   }
 }
 
+/**
+ * Delete an emergency contact
+ * @param token - user token
+ * @param id - contact ID
+ * @returns void
+ */
 export const deleteContact = async(token:string,id:number):Promise<void>=>{
   try {
     await api.delete(`/emergency-contacts/${id}`,{
