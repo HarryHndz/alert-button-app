@@ -1,7 +1,7 @@
 import { IPassword } from '@/data/interfaces/IPassword';
 import * as Yup from 'yup';
 
-export const passwordValidation = ():Yup.ObjectSchema<IPassword>=>{
+export const passwordValidation = ():Yup.ObjectSchema<IPassword >=>{
   return Yup.object().shape({
     currentPassword:Yup.string().required('La contraseña actual es requerida'),
     password: Yup.string()

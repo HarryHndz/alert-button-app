@@ -5,11 +5,12 @@ import { FormControl } from "@/components/ui/form-control";
 import { UnlockIcon } from "@/components/ui/icon";
 import { IPassword } from "@/data/interfaces/IPassword";
 import { passwordValidation } from "@/data/validations/passwordValidation";
+import { useErrorToast } from "@/hooks/useErrorToast";
 import { changePasswordService } from "@/service/authService";
 import LocalStorage from "@/utils/storage";
 import { router } from "expo-router";
 import { useFormik } from "formik";
-import { Alert, Text } from "react-native";
+import { Text } from "react-native";
 
 export default function PasswordScreen() {
   const initialValues:IPassword = {
@@ -17,7 +18,7 @@ export default function PasswordScreen() {
     password: '',
     confirmPassword: ''
   }
-  
+  const { showErrorToast } = useErrorToast()
   const handleChangePassword = async (values:IPassword)=>{
     try {
       const storage = new LocalStorage()
@@ -27,7 +28,7 @@ export default function PasswordScreen() {
       return router.replace('/auth/(tabs)')
     } catch (error) {
       console.log(error)
-      Alert.alert('Error',`${error}`)
+      showErrorToast('Error', `${error}`)
     }
   }
   

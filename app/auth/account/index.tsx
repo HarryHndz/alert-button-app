@@ -2,6 +2,7 @@ import { ActionAccount } from "@/components/Account/ActionAccount";
 import { ItemDetail } from "@/components/Account/ItemDetail";
 import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
+import { useErrorToast } from "@/hooks/useErrorToast";
 import { useSession } from "@/hooks/useSession";
 import LocalStorage from "@/utils/storage";
 import { Image } from "expo-image";
@@ -10,8 +11,7 @@ import { Lock, LogOut } from 'lucide-react-native';
 import { Text } from "react-native";
 export default function DetailScreen() {
   const {session} = useSession()
-  if (!session) return null
-  
+  const { showErrorToast } = useErrorToast()
   const handleLogout = async()=>{
     try {
       const storage = new LocalStorage()
@@ -20,7 +20,7 @@ export default function DetailScreen() {
       await storage.removeSession()
       return router.replace('/')
     } catch (error) {
-      console.log('error',error)
+      showErrorToast('Error', `${error}`)
     }
   }
 
@@ -36,12 +36,12 @@ export default function DetailScreen() {
       </Box>
       <Box className="w-3/5">
         <Text className="text-2xl font-bold text-white">Bienvenido</Text>
-        <Text className="text-sm text-white">{session.name}</Text>
+        <Text className="text-sm text-white">{session?.name}</Text>
       </Box>
      </Box>
-    <ItemDetail label="Nombre" value={`${session.name} ${session.lastName}`} />
-     <ItemDetail label="Correo" value={session.email} />
-     <ItemDetail label="Telefono" value={session.phone ?? 'Sin telefono'} />
+    <ItemDetail label="Nombre" value={`${session?.name} ${session?.lastName}`} />
+     <ItemDetail label="Correo" value={session?.email ?? 'Sin correo'} />
+     <ItemDetail label="Telefono" value={session?.phone ?? 'Sin telefono'} />
      <Divider className="my-5 bg-white w-5/6" orientation="horizontal" />
      <Box className="flex-column gap-7 mt-5 w-full px-10">
         <ActionAccount

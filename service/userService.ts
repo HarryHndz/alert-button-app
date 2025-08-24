@@ -6,9 +6,17 @@ import api from '@/service/api';
 import { AxiosError } from 'axios';
 
 export const registerUser = async (data: RegisterData): Promise<IResUser> => {
-  const response = await api.post('auth/signup', data);
-  console.log("Respuesta de api al crear o intentar registrarse", response)
-  return response.data;
+  try {
+    const response = await api.post('auth/signup', data);
+    console.log("Respuesta de api al crear o intentar registrarse", response)
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log(error.response?.data);
+      throw error.response?.data.message ?? 'Error al registrar el usuario';
+    }
+    throw 'Error al registrar el usuario'
+  }
 }; 
 
 

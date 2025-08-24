@@ -6,6 +6,7 @@ import { PhoneIcon } from '@/components/ui/icon';
 import { IContact } from '@/data/interfaces/IContact';
 import { contactSchema, contactSchemaUpdate } from '@/data/validations/addContactValidation';
 import { useContact } from '@/hooks/useContact';
+import { useErrorToast } from '@/hooks/useErrorToast';
 import { updateContact } from '@/service/contactService';
 import { addContact } from '@/service/userService';
 import LocalStorage from '@/utils/storage';
@@ -30,13 +31,12 @@ export default function AddContact() {
     active:true,
   })
   const { width } = useWindowDimensions();
+  const { showErrorToast } = useErrorToast()
   const isWeb = width >= 768 || Platform.OS === 'web';
-  const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (values:IContact,formikHelpers:FormikHelpers<IContact>)=>{
     try {
-      setApiError('');
       setLoading(true);
       const storage = new LocalStorage()
       const session = await storage.getSession()
@@ -49,10 +49,9 @@ export default function AddContact() {
         addContactStore(response)
       }
       formikHelpers.resetForm()
-      setApiError('')
       router.back()
     } catch (error) {
-      setApiError(error as string)
+      showErrorToast('Error', `${error}`)
     } finally {
       setLoading(false)
     }
@@ -89,9 +88,6 @@ export default function AddContact() {
       <Text className="text-xl font-bold text-white mb-6 text-center">
         Agregar contacto
       </Text>
-      {apiError ? (
-        <Text className="text-red-500 text-center mb-4">{apiError}</Text>
-      ) : null}
       <FormControl>
         <Box className="flex flex-col gap-4 w-full">
           <ThemedInput
@@ -120,7 +116,6 @@ export default function AddContact() {
             errorMessage={formik.errors.lastName ?? ''}
             cn='w-full'
           />
-
           <ThemedInput
             iconLeft={User2Icon}
             sizeInput='lg'

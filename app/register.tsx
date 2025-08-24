@@ -3,6 +3,7 @@ import { ThemedInput } from '@/components/ThemedInput';
 import { Box } from '@/components/ui/box';
 import { FormControl } from '@/components/ui/form-control';
 import { EyeIcon, EyeOffIcon, MailIcon, UnlockIcon } from '@/components/ui/icon';
+import { useErrorToast } from '@/hooks/useErrorToast';
 import { Image } from 'expo-image';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
@@ -20,27 +21,19 @@ const initialValues: RegisterData = {
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { showErrorToast } = useErrorToast();
 
   const formik = useFormik({
     initialValues,
     validationSchema: registerSchema,
     onSubmit: async (values) => {
-      setApiError('');
-      setLoading(true);
       try {
-        await registerUser(values);
-        formik.resetForm();
-        setApiError('');
-        alert('¡Registro exitoso!');
+        setLoading(true)
+        await registerUser(values)
+        formik.resetForm()
       } catch (err: any) {
-        if (err.response && err.response.data && err.response.data.message) {
-          console.log("aaa", err)
-          setApiError(err.response.data.message);
-        } else {
-          setApiError('Ocurrió un error inesperado.');
-        }
+        showErrorToast('Error', `${err}`)
       } finally {
         setLoading(false);
       }
@@ -59,9 +52,6 @@ export default function Register() {
         >
           <Box className="flex flex-col p-8 w-full md:max-w-xl md:mx-auto">
             <Text className="text-2xl font-bold text-white mb-6 text-center">Registrarse</Text>
-            {apiError ? (
-              <Text className="text-red-500 text-center mb-4">{apiError}</Text>
-            ) : null}
             <FormControl>
               <Box className="flex flex-col gap-4 w-full">
                 <ThemedInput
@@ -116,7 +106,6 @@ export default function Register() {
                   keyboardType="phone-pad"
                   errorMessage={formik.errors.phone_number ?? ''}
                 />
-
                 <ThemedInput
                   iconLeft={UnlockIcon}
                   sizeInput='lg'
