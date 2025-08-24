@@ -7,24 +7,19 @@ import { View } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 
 export default function Map({ 
-  latitude = MAP_CONFIG.DEFAULT_LATITUDE,
-  longitude = MAP_CONFIG.DEFAULT_LONGITUDE,
   alertLocation,
   isConnected,
-  onLocationSelect,
 }: MapProps) {
   
   const mapRef = useRef<MapView>(null);
   
   const initialRegion = {
-    latitude,
-    longitude,
+    latitude: MAP_CONFIG.DEFAULT_LATITUDE,
+    longitude: MAP_CONFIG.DEFAULT_LONGITUDE,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
 
-  console.log("isconected",isConnected)
-  console.log("alertLocation",alertLocation)
 
   useEffect(() => {
     if (alertLocation && mapRef.current) {
@@ -57,12 +52,7 @@ export default function Map({
         provider={PROVIDER_GOOGLE}
         style={{width: '100%', height: '100%'}}
         initialRegion={initialRegion}
-        onPress={(event) => {
-          const { latitude, longitude } = event.nativeEvent.coordinate;
-          onLocationSelect?.(latitude, longitude);
-        }}
       >
-        {/* Marcador de alerta si existe */}
         {alertLocation && (
           <Marker
             coordinate={{

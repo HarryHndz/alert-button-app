@@ -1,20 +1,16 @@
 export interface MapProps {
-  // Props comunes para ambos (mobile y web)
-  latitude?: number;
-  longitude?: number;
-  zoom?: number;
-  
-  // Props específicas para alertas
+  /**
+   * Información sobre la ubicación de la alerta
+   */
   alertLocation?: {
     latitude: number;
     longitude: number;
     title?: string;
     description?: string;
   };
-  
-  // Props para el estado de conexión MQTT
+
+  /**
+   * Estado de conexión a MQTT
+   */
   isConnected?: boolean;
-  
-  // Callbacks
-  onLocationSelect?: (latitude: number, longitude: number) => void;
 }
