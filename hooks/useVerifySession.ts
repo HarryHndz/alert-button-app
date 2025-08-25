@@ -1,10 +1,9 @@
 import { IUser } from "@/data/interfaces/IUser"
-import { refreshSession } from "@/service/authService"
 import LocalStorage from "@/utils/storage"
-import { router } from "expo-router"
+// import { router } from "expo-router"
+import { verifySessionActivate } from "@/service/authService"
 import { useEffect, useState } from "react"
 import { Platform } from "react-native"
-
 
 /**
  * Custom hook to verify user session in LocalStorage to initialize app state
@@ -13,7 +12,7 @@ import { Platform } from "react-native"
 
 export const useVerifySession = ()=>{
   const [isLoading, setIsLoading] = useState(true)
-
+  const [session, setSession] = useState<IUser | null>(null)
   useEffect(()=>{
     const verifySession = async()=>{
       try {
@@ -21,35 +20,18 @@ export const useVerifySession = ()=>{
           await new Promise(resolve => setTimeout(resolve, 300))
         }
         const storage = new LocalStorage()
-        const session = await storage.getSession()
-        
-        if (!session) {
+        const sessionStore = await storage.getSession()
+
+        if (!sessionStore)return setIsLoading(false)
+
+        const verify = await verifySessionActivate(sessionStore.token)
+        if (!verify){
           await storage.removeSession()
           return setIsLoading(false)
         }
-
-        if (!session.dateEndLogin) {
-          await storage.removeSession()
-          return setIsLoading(false)
-        }
-
-        if(new Date() > new Date(session.dateEndLogin)){
-          const newToken = await refreshSession(session.token)
-          if (!newToken) {
-            await storage.removeSession()
-            return setIsLoading(false)
-          }
-          const dateLogin = new Date()
-            const newSession:IUser = {
-              ...session,
-              token:newToken,
-              dateLogin:dateLogin,
-              dateEndLogin:new Date(dateLogin.getTime() + 23 * 60 * 60 * 1000)
-            }
-            await storage.setSession(newSession)
-        }
+        setSession(sessionStore)
         setIsLoading(false)
-        router.replace('/auth/(tabs)')
+        // router.replace('/auth/(tabs)')
       } catch (error) {
         console.log(error)
         setIsLoading(false)
@@ -80,5 +62,5 @@ export const useVerifySession = ()=>{
     
     initSession()
   },[])
-  return {isLoading}
+  return {isLoading,session}
 }

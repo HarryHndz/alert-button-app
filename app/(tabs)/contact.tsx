@@ -41,7 +41,7 @@ export default function Contact() {
     console.log("contactSelected",contactSelected)
     if (!contactSelected) return
     handleCloseOptions()
-    return router.navigate(`/auth/addcontact/${contactSelected?.id}`)
+    return router.navigate(`/addcontact/${contactSelected?.id}`)
   }
 
   const handleDeleteContact = async()=>{
@@ -71,7 +71,7 @@ export default function Contact() {
       <Text className='text-white text-sm pl-5'>{contactsFiltered.length} contactos registrados</Text>
       <Box className='flex flex-row justify-between gap-2 px-5 mt-5'>
         <InputSearch searchFilter={searchFilter} setSearchFilter={setSearchFilter} />
-        <TouchableOpacity onPress={()=>router.navigate('/auth/addcontact/0')} className='w-1/6 bg-blue-950 rounded-lg items-center justify-center'>
+        <TouchableOpacity onPress={()=>router.navigate('/addcontact/0')} className='w-1/6 bg-blue-950 rounded-lg items-center justify-center'>
           <PlusIcon color='white' />
         </TouchableOpacity>
       </Box>

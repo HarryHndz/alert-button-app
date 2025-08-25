@@ -9,19 +9,18 @@ import {
   MailIcon,
   UnlockIcon
 } from '@/components/ui/icon'
+import { AuthContext } from '@/context/AuthContext'
 import { ILogin } from '@/data/interfaces/ILogin'
 import { loginValidation } from '@/data/validations/loginValidation'
 import { useErrorToast } from '@/hooks/useErrorToast'
-import { useVerifySession } from '@/hooks/useVerifySession'
 import { loginService } from '@/service/authService'
-import LocalStorage from '@/utils/storage'
-import { Link, router } from 'expo-router'
+import { Link } from 'expo-router'
 import { useFormik } from 'formik'
-import { useState } from 'react'
-import { ActivityIndicator, Platform, Text } from 'react-native'
+import { use, useState } from 'react'
+import { Platform, Text } from 'react-native'
 
 export default function Index() {
-  const {isLoading} = useVerifySession()
+  const {login,user} = use(AuthContext)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const {showErrorToast} = useErrorToast()
   const initialValues:ILogin = {
@@ -40,10 +39,10 @@ export default function Index() {
   const handleLogin = async (values:ILogin)=>{
     try {
       const response = await loginService(values)
+      console.log(response)
       if (response) {
-        const storage = new LocalStorage()
-        await storage.setSession(response)
-        return router.replace('/auth/(tabs)')
+        await login(response)
+        // return router.replace('/auth/(tabs)')
       }
     } catch (error) {
       showErrorToast('Error',`${error}`)
@@ -54,7 +53,8 @@ export default function Index() {
     handleSubmit,
     values,errors,
     handleChange,
-    handleBlur,isSubmitting,
+    handleBlur,
+    isSubmitting,
     touched
   } = useFormik({
     initialValues,
@@ -62,14 +62,8 @@ export default function Index() {
     onSubmit:handleLogin
   })
 
-  if (isLoading) {
-    return(
-      <Box className='flex-1 items-center justify-center'>
-       <ActivityIndicator size='large' color='white' />
-      </Box>
-    )
-  }
-  
+  console.log("User in Login page:", user);
+ 
   return (
     <Box className={stylesContainer}>
       <Box className={stylesForm}>
@@ -113,7 +107,7 @@ export default function Index() {
         <Divider className='my-4' />
         <Box className='flex flex-row items-center justify-center gap-1'>
           <Text className='text-white'>¿No tienes una cuenta?,</Text>
-          <Link href='/register'>
+          <Link href='/register' asChild>
             <Text className='text-white'>Regístrate</Text>
           </Link>
         </Box>

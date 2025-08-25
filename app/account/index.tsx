@@ -2,23 +2,23 @@ import { ActionAccount } from "@/components/Account/ActionAccount";
 import { ItemDetail } from "@/components/Account/ItemDetail";
 import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
+import { AuthContext } from "@/context/AuthContext";
 import { useErrorToast } from "@/hooks/useErrorToast";
-import { useSession } from "@/hooks/useSession";
-import LocalStorage from "@/utils/storage";
+// import { useSession } from "@/hooks/useSession";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Lock, LogOut } from 'lucide-react-native';
+import { use } from "react";
 import { Text } from "react-native";
 export default function DetailScreen() {
-  const {session} = useSession()
+  // const {session} = useSession()
+  const {user,logout} = use(AuthContext)
   const { showErrorToast } = useErrorToast()
   const handleLogout = async()=>{
     try {
-      const storage = new LocalStorage()
-      if(!session) return
+      if(!user) return
       console.log('remove session')
-      await storage.removeSession()
-      return router.replace('/')
+      logout()
     } catch (error) {
       showErrorToast('Error', `${error}`)
     }
@@ -36,12 +36,12 @@ export default function DetailScreen() {
       </Box>
       <Box className="w-3/5">
         <Text className="text-2xl font-bold text-white">Bienvenido</Text>
-        <Text className="text-sm text-white">{session?.name}</Text>
+        <Text className="text-sm text-white">{user?.name}</Text>
       </Box>
      </Box>
-    <ItemDetail label="Nombre" value={`${session?.name} ${session?.lastName}`} />
-     <ItemDetail label="Correo" value={session?.email ?? 'Sin correo'} />
-     <ItemDetail label="Telefono" value={session?.phone ?? 'Sin telefono'} />
+    <ItemDetail label="Nombre" value={`${user?.name} ${user?.lastName}`} />
+     <ItemDetail label="Correo" value={user?.email ?? 'Sin correo'} />
+     <ItemDetail label="Telefono" value={user?.phone ?? 'Sin telefono'} />
      <Divider className="my-5 bg-white w-5/6" orientation="horizontal" />
      <Box className="flex-column gap-7 mt-5 w-full px-10">
         <ActionAccount
@@ -50,7 +50,7 @@ export default function DetailScreen() {
           label="Cerrar sesión"
         />
         <ActionAccount
-          handleAction={() => router.navigate('/auth/account/password')}
+          handleAction={() => router.navigate('/account/password')}
           icon={<Lock size={25} color='white' />}
           label="Cambiar contraseña"
         />

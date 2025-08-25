@@ -113,11 +113,11 @@ export default function Register() {
                   variant='outline'
                   isInvalid={!!formik.errors.password && formik.touched.password ? true : false}
                   label='Contraseña'
-                  placeholder="Ingrese su nombre"
-                  value={formik.values.name}
-                  onChangeText={formik.handleChange('name')}
-                  onBlur={formik.handleBlur('name')}
-                  errorMessage={formik.errors.name ?? ''}
+                  placeholder="Ingrese su contraseña"
+                  value={formik.values.password}
+                  onChangeText={formik.handleChange('password')}
+                  onBlur={formik.handleBlur('password')}
+                  errorMessage={formik.errors.password ?? ''}
                   type={showPassword ? 'text' : 'password'}
                   secureTextEntry={!showPassword}
                   iconRight={showPassword ? EyeIcon : EyeOffIcon}

@@ -26,13 +26,13 @@ export default function TabLayout() {
               <Text className="text-white text-lg font-bold">SafePulse</Text>
             </View>
             <View className="flex flex-row gap-8">
-              <Link href="/auth/(tabs)" asChild>
+              <Link href="/(tabs)" asChild>
                 <Text className={`text-white text-base font-medium ${pathname === '/(tabs)' || pathname === '/(tabs)/index' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Botón</Text>
               </Link>
-              <Link href="/auth/(tabs)/contact" asChild>
+              <Link href="/(tabs)/contact" asChild>
                 <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/contact' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Contactos</Text>
               </Link>
-              <Link href="/auth/(tabs)/map" asChild>
+              <Link href="/(tabs)/map" asChild>
                 <Text className={`text-white text-base font-medium ${pathname === '/(tabs)/map' ? 'underline underline-offset-8 decoration-2 decoration-red-500' : 'text-white/60'}`}>Mapa</Text>
               </Link>
             </View>

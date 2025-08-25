@@ -1,14 +1,15 @@
 import { ButtonAlert } from '@/components/Home/ButtonAlert';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
+import { AuthContext } from '@/context/AuthContext';
 import { IAlert } from '@/data/interfaces/IAlert';
 import { useContact } from '@/hooks/useContact';
-import { useSession } from '@/hooks/useSession';
+// import { useSession } from '@/hooks/useSession';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
 import * as Location from 'expo-location';
 import { Client, Message } from 'paho-mqtt';
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Text } from 'react-native';
 
 const brokerHost = process.env.EXPO_PUBLIC_BROKER_HOST ?? ''
@@ -16,7 +17,8 @@ const port = Number(process.env.EXPO_PUBLIC_PORT) ?? 0
 const topic = process.env.EXPO_PUBLIC_TOPIC ?? ''
 
 export default function HomeScreen() {
-  const {session} = useSession()
+  // const {session} = useSession()
+  const {user} = use(AuthContext)
   const {contacts,setContactsStore} = useContact()
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -73,7 +75,7 @@ export default function HomeScreen() {
   const handleConnectBroker = ()=>{
     try {
       console.log("entro en el connectBroker")
-      if (!session) return
+      if (!user) return
       console.log("entro en el if")
       const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
       mqttClient.onConnectionLost = (responseObject) => {
@@ -84,7 +86,7 @@ export default function HomeScreen() {
         onSuccess: async() => {
           console.log("Conectado al broker");
           setIsConnected(true);
-          mqttClient.subscribe(`${topic}/${session.id}`);
+          mqttClient.subscribe(`${topic}/${user.id}`);
           await handleWatchingPosition()
         },
         onFailure: (err) => {
@@ -104,18 +106,18 @@ export default function HomeScreen() {
     try {
       setSending(true)
       console.log("entro en el try de handleNewAlert")
-      if (!session) return setSending(false)
+      if (!user) return setSending(false)
       console.log("entro en el if de handleNewAlert")
       await handleWatchingPosition(async (location)=>{
         const payload: IAlert = {
           location_lat: location.coords.latitude,
           location_lng: location.coords.longitude,
-          user_id: Number(session.id),
+          user_id: Number(user.id),
           alert_type_id: 1,
           dive_type_id: 1,
-          url:`http://${brokerHost}:${port}/auth/map?id=${session.id}`
+          url:`http://${brokerHost}:${port}/auth/map?id=${user.id}`
         }
-        await newAlert(session.token,payload)
+        await newAlert(user.token,payload)
         handleConnectBroker()
       })
       console.log("despues de handleWatchingPosition")
@@ -139,9 +141,9 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchContacts = async()=>{
       try {
-        if (!session) return 
+        if (!user) return
         setIsLoading(true)
-        const contacts = await getContacts(session.token,session.id)
+        const contacts = await getContacts(user.token,user.id)
         setContactsStore(contacts)
       } catch (error) {
         console.log('error',error)
@@ -150,21 +152,21 @@ export default function HomeScreen() {
         setIsLoading(false)
       }
     }
-    if (session) {
+    if (user) {
       fetchContacts()
     }
-  }, [session,setContactsStore]);
+  }, [user,setContactsStore]);
 
   
   useEffect(()=>{
-    if (!client || !isConnected || !session || !location) return
+    if (!client || !isConnected || !user || !location) return
     const msg = new Message(JSON.stringify({
       location_lat:location.coords.latitude,
       location_lng:location.coords.longitude}
     ));
-    msg.destinationName = `${topic}/${session.id}`
+    msg.destinationName = `${topic}/${user.id}`
     client.send(msg)
-  },[location,client,isConnected,session])
+  },[location,client,isConnected,user])
 
 
   if (isLoading) {

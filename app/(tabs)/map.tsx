@@ -56,9 +56,6 @@ export default function MapLayout() {
     };
   },[id])
 
-  const handleLocationSelect = (latitude: number, longitude: number) => {
-    console.log('Ubicación seleccionada:', { latitude, longitude });
-  };
 
   return (
     <Map 
@@ -69,7 +66,6 @@ export default function MapLayout() {
         title: 'Alerta de emergencia',
         description: `ID: ${id}`
       } : undefined}
-      onLocationSelect={handleLocationSelect}
     />
   );
 }
