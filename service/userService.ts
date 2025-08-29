@@ -2,7 +2,6 @@ import type { IAlert } from '@/data/interfaces/IAlert';
 import type { IResUser } from '@/data/interfaces/IUser';
 import type { RegisterData } from '@/data/validations/validation';
 import api from '@/service/api';
-import { AxiosError } from 'axios';
 
 /**
  * Register a new user
@@ -14,11 +13,7 @@ export const registerUser = async (data: RegisterData): Promise<IResUser> => {
     const response = await api.post('auth/signup', data)
     return response.data
   } catch (error) {
-    if (error instanceof AxiosError) {
-      console.log(error.response?.data)
-      throw error.response?.data.message ?? 'Error al registrar el usuario'
-    }
-    throw 'Error al registrar el usuario'
+    throw error
   }
 }; 
 
@@ -29,7 +24,7 @@ export const registerUser = async (data: RegisterData): Promise<IResUser> => {
  * @param data - alert data
  * @returns created alert
  */
-export const newAlert = async (token:string,data:IAlert) => {
+export const newAlert = async (data:IAlert) => {
   try {
     const response = await api.post('alerts', {
       user_id: data.user_id,
@@ -38,17 +33,9 @@ export const newAlert = async (token:string,data:IAlert) => {
       location_lat: data.location_lat,
       location_lng: data.location_lng,
       real_time_url:data.url
-    },{
-      headers:{
-        Authorization: `Bearer ${token}`
-      }
     })
     return response.data
   } catch (error) {
-    if(error instanceof AxiosError){
-      console.log(error.response?.data)
-      throw error.response?.data.message ?? 'Error al crear la alerta'
-    }
-    throw 'Error al crear la alerta'
+    throw error
   }
 }

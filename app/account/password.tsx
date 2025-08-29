@@ -7,7 +7,6 @@ import { IPassword } from "@/data/interfaces/IPassword";
 import { passwordValidation } from "@/data/validations/passwordValidation";
 import { useErrorToast } from "@/hooks/useErrorToast";
 import { changePasswordService } from "@/service/authService";
-import LocalStorage from "@/utils/storage";
 import { router } from "expo-router";
 import { useFormik } from "formik";
 import { Text } from "react-native";
@@ -21,10 +20,7 @@ export default function PasswordScreen() {
   const { showErrorToast } = useErrorToast()
   const handleChangePassword = async (values:IPassword)=>{
     try {
-      const storage = new LocalStorage()
-      const sesion = await storage.getSession()
-      if (!sesion)return
-      await changePasswordService(values.currentPassword,values.password,sesion.token)
+      await changePasswordService(values.currentPassword,values.password)
       return router.replace('/(tabs)')
     } catch (error) {
       console.log(error)

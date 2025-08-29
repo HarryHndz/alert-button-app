@@ -1,8 +1,10 @@
 import { IUser } from "@/data/interfaces/IUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { Platform } from "react-native";
 /**
- * Class LocalStorage to save session user 
+ * Class LocalStorage to save session user.
+ *
+ * to movil use `AsyncStorage` and web use `localStorage`
  * @class
  * @method setSession - save user session
  * @method getSession - get user session
@@ -24,7 +26,13 @@ export default class LocalStorage {
    * @param user 
    */
   public async setSession(user:IUser){
-    await AsyncStorage.setItem(this.KEY_SESSION,JSON.stringify(user))
+    if(Platform.OS === 'web'){
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(this.KEY_SESSION,JSON.stringify(user))
+      }
+    }else{
+      await AsyncStorage.setItem(this.KEY_SESSION,JSON.stringify(user))
+    }
   }
 
   /**
@@ -32,9 +40,15 @@ export default class LocalStorage {
    * @public
    * @returns user | null
    */
-  public async getSession():Promise<IUser|null>{
-    const user = await AsyncStorage.getItem(this.KEY_SESSION)
-    return user ? JSON.parse(user) : null
+  public async getSession(): Promise<IUser | null> {
+    if (Platform.OS === 'web') {
+      if (typeof localStorage === 'undefined') return null
+      const user = localStorage.getItem(this.KEY_SESSION);
+      return user ? JSON.parse(user) : null;
+    } else {
+      const user = await AsyncStorage.getItem(this.KEY_SESSION);
+      return user ? JSON.parse(user) : null;
+    }
   }
 
   /**
@@ -43,6 +57,12 @@ export default class LocalStorage {
    * @returns void
    */
   public async removeSession(){
-    await AsyncStorage.removeItem(this.KEY_SESSION)
+    if (Platform.OS === 'web') {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(this.KEY_SESSION);
+      }
+    } else {
+      await AsyncStorage.removeItem(this.KEY_SESSION);
+    }
   }
 }

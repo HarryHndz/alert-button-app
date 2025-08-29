@@ -3,8 +3,9 @@ import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { AuthContext } from '@/context/AuthContext';
 import { IAlert } from '@/data/interfaces/IAlert';
+import { IContact } from '@/data/interfaces/IContact';
 import { useContact } from '@/hooks/useContact';
-// import { useSession } from '@/hooks/useSession';
+import { useFetch } from '@/hooks/useFetch';
 import { getContacts } from '@/service/contactService';
 import { newAlert } from '@/service/userService';
 import * as Location from 'expo-location';
@@ -17,13 +18,16 @@ const port = Number(process.env.EXPO_PUBLIC_PORT) ?? 0
 const topic = process.env.EXPO_PUBLIC_TOPIC ?? ''
 
 export default function HomeScreen() {
-  // const {session} = useSession()
   const {user} = use(AuthContext)
   const {contacts,setContactsStore} = useContact()
+  const {isLoading,error} = useFetch<IContact[]>({
+    fetcher:(signal)=>getContacts(user?.id ?? 0,signal),
+    onSuccess:setContactsStore,
+    immediate:true
+  })
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [client, setClient] = useState<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const watchingPositionRef = useRef<Location.LocationSubscription | null>(null)
@@ -32,7 +36,6 @@ export default function HomeScreen() {
 
   const handleStopWatchingPosition = ()=>{
     if (watchingPositionRef.current) {
-      console.log("entro en el remove")
       if (Platform.OS !== 'web') {
         watchingPositionRef.current.remove()
       }
@@ -43,10 +46,8 @@ export default function HomeScreen() {
   const handleWatchingPosition = async(sendAlertLocation?:(location: Location.LocationObject) => Promise<void>)=>{
     try {
       handleStopWatchingPosition()
-      console.log("entro en el requestForegroundPermissionsAsync")
       const {status} = await Location.requestForegroundPermissionsAsync()
       if (status !== 'granted') return
-      console.log("entro en el watchPositionAsync")
       let isFirst = true
       watchingPositionRef.current = await Location.watchPositionAsync(
         {
@@ -74,9 +75,7 @@ export default function HomeScreen() {
   
   const handleConnectBroker = ()=>{
     try {
-      console.log("entro en el connectBroker")
       if (!user) return
-      console.log("entro en el if")
       const mqttClient = new Client(brokerHost, port, "expo_" + Math.random())
       mqttClient.onConnectionLost = (responseObject) => {
         console.log("Conexión perdida:", responseObject.errorMessage);
@@ -105,9 +104,7 @@ export default function HomeScreen() {
   const handleNewAlert = async () => {
     try {
       setSending(true)
-      console.log("entro en el try de handleNewAlert")
       if (!user) return setSending(false)
-      console.log("entro en el if de handleNewAlert")
       await handleWatchingPosition(async (location)=>{
         const payload: IAlert = {
           location_lat: location.coords.latitude,
@@ -117,7 +114,7 @@ export default function HomeScreen() {
           dive_type_id: 1,
           url:`http://${brokerHost}:${port}/auth/map?id=${user.id}`
         }
-        await newAlert(user.token,payload)
+        await newAlert(payload)
         handleConnectBroker()
       })
       console.log("despues de handleWatchingPosition")
@@ -138,26 +135,6 @@ export default function HomeScreen() {
     }
   }
 
-  useEffect(() => {
-    const fetchContacts = async()=>{
-      try {
-        if (!user) return
-        setIsLoading(true)
-        const contacts = await getContacts(user.token,user.id)
-        setContactsStore(contacts)
-      } catch (error) {
-        console.log('error',error)
-        setErrorMsg('Error al obtener los contactos')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    if (user) {
-      fetchContacts()
-    }
-  }, [user,setContactsStore]);
-
-  
   useEffect(()=>{
     if (!client || !isConnected || !user || !location) return
     const msg = new Message(JSON.stringify({
@@ -189,10 +166,16 @@ export default function HomeScreen() {
           isConnected={isConnected}
           handleNewAlert={handleNewAlert}
         />
-        <Text className="text-neutral-400 text-center mt-8 mb-2">
-          {titleContact}
-        </Text>
-        
+        {
+          error ? (
+            <Text className="text-red-500 text-center mb-4">{error}</Text>
+          ) : (
+            <Text className="text-neutral-400 text-center mt-8 mb-2">
+              {titleContact}
+            </Text>
+          )
+        }
+
         {errorMsg ? (
           <Text className="text-red-500 text-center mb-4">{errorMsg}</Text>
         ) : location ? (
@@ -215,6 +198,7 @@ export default function HomeScreen() {
             </Button>
           )
         }
+        
       </Box>
     </Box>
   );

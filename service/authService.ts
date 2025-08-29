@@ -1,6 +1,5 @@
 import { ILogin } from "@/data/interfaces/ILogin";
 import { IUser } from "@/data/interfaces/IUser";
-import { AxiosError } from "axios";
 import api from "./api";
 
 
@@ -31,11 +30,7 @@ export const loginService = async(dataAuth:ILogin):Promise<IUser>=>{
     } 
     return responseData
   } catch (error) {
-    if(error instanceof AxiosError){
-      console.log(error.response?.data)
-      throw error.response?.data.message ?? 'Error al iniciar sesión'
-    }
-    throw 'Error al iniciar sesión'
+    throw error
   }
 }
 
@@ -44,19 +39,11 @@ export const loginService = async(dataAuth:ILogin):Promise<IUser>=>{
  * @param token - user token
  * @returns void
  */
-export const logoutService = async(token:string):Promise<void>=>{
+export const logoutService = async():Promise<void>=>{
   try {
-    await api.post('/auth/logout',{},{
-      headers:{
-        Authorization: `Bearer ${token}`
-      }
-    })
+    await api.post('/auth/logout',{})
   } catch (error) {
-    if(error instanceof AxiosError){
-      console.log(error.response?.data)
-      throw error.response?.data.message ?? 'Error al cerrar sesión'
-    }
-    throw 'Error al cerrar sesión'
+    throw error
   }
 }
 
@@ -66,23 +53,15 @@ export const logoutService = async(token:string):Promise<void>=>{
  * @param newPassword - new user password
  * @param token - user token
  */
-export const changePasswordService = async(currentPassword:string,newPassword:string,token:string):Promise<void>=>{
+export const changePasswordService = async(currentPassword:string,newPassword:string):Promise<void>=>{
   try {
     await api.post('/auth/change-password',{
       newPassword:newPassword,
       currentPassword:currentPassword
-    },{
-      headers:{
-        Authorization: `Bearer ${token}`
-      }
     })
     
   } catch (error) {
-    if(error instanceof AxiosError){
-      console.log(error.response?.data)
-      throw error.response?.data.message ?? 'Error al cambiar contraseña'
-    }
-    throw 'Error al cambiar contraseña'
+    throw error
   }
 }
 
@@ -91,21 +70,13 @@ export const changePasswordService = async(currentPassword:string,newPassword:st
  * @param token - user token
  * @returns user profile data
  */
-export const verifySessionActivate =async(token:string):Promise<any>=>{
+export const verifySessionActivate =async():Promise<any>=>{
   try {
-    const response = await api.get('/auth/profile',{
-      headers:{
-        Authorization: `Bearer ${token}`
-      }
-    })
+    const response = await api.get('/auth/profile')
     const data = response.data
     return data
   } catch (error) {
-    if(error instanceof AxiosError){
-      console.log(error.response?.data)
-      throw error.response?.data.message ?? 'Error al verificar sesión'
-    }
-    throw 'Error al verificar sesión'
+    throw error
   }
 }
 
@@ -115,21 +86,13 @@ export const verifySessionActivate =async(token:string):Promise<any>=>{
  * @param token - user token
  * @returns new access token
  */
-export const refreshSession =async(token:string):Promise<string>=>{
+export const refreshSession =async():Promise<string>=>{
   try {
-    const response = await api.post('/auth/refresh',{
-      headers:{
-        Authorization: `Bearer ${token}`
-      }
-    })
+    const response = await api.post('/auth/refresh')
     console.log('response',response.data)
     const data = response.data
     return data.access_token
   } catch (error) {
-    if(error instanceof AxiosError){
-      console.log(error.response?.data)
-      throw error.response?.data.message ?? 'Error al verificar sesión'
-    }
-    throw 'Error al verificar sesión'
+    throw error
   }
 }

@@ -4,14 +4,13 @@ import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
 import { AuthContext } from "@/context/AuthContext";
 import { useErrorToast } from "@/hooks/useErrorToast";
-// import { useSession } from "@/hooks/useSession";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Lock, LogOut } from 'lucide-react-native';
 import { use } from "react";
 import { Text } from "react-native";
+
 export default function DetailScreen() {
-  // const {session} = useSession()
   const {user,logout} = use(AuthContext)
   const { showErrorToast } = useErrorToast()
   const handleLogout = async()=>{

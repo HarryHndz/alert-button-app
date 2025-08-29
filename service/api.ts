@@ -1,3 +1,5 @@
+import { errorCodeHandle, errorInternalHandle } from '@/utils/errorHandle';
+import LocalStorage from '@/utils/storage';
 import axios from 'axios';
 
 /**
@@ -10,21 +12,33 @@ const api = axios.create({
   },
 });
 
+const ENDPOINTS_PUBLIC = [
+  '/auth/login',
+  '/auth/signup'
+]
+
 api.interceptors.request.use(
   async (config) => {
-    // Aquí puedes agregar un token si lo necesitas
-    // const token = await AsyncStorage.getItem('token');
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
+    const store = new LocalStorage()
+    const session = await store.getSession()
+    const token = session?.token ?? ''
+    if (token && !ENDPOINTS_PUBLIC.includes(config.url ?? '')) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
-    // Manejo global de errores
-    return Promise.reject(error);
+    if (error.response) {
+      return Promise.reject(errorCodeHandle(error.response.status.toString()))
+    }
+    return Promise.reject(errorInternalHandle(error.code));
   }
 );
 

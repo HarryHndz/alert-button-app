@@ -3,22 +3,23 @@ import { ThemedInput } from '@/components/ThemedInput';
 import { Box } from '@/components/ui/box';
 import { FormControl } from '@/components/ui/form-control';
 import { PhoneIcon } from '@/components/ui/icon';
+import { AuthContext } from '@/context/AuthContext';
 import { IContact } from '@/data/interfaces/IContact';
 import { contactSchema, contactSchemaUpdate } from '@/data/validations/addContactValidation';
 import { useContact } from '@/hooks/useContact';
 import { useErrorToast } from '@/hooks/useErrorToast';
 import { addContact, updateContact } from '@/service/contactService';
-import LocalStorage from '@/utils/storage';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { FormikHelpers, useFormik } from 'formik';
 import { User2Icon } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Platform, ScrollView, Text, useWindowDimensions } from 'react-native';
 
 
 export default function AddContact() {
   const {id} = useLocalSearchParams<{id?:string}>()
+  const {user} = use(AuthContext)
   const {getContactByIdStore,addContactStore,updateContactStore} = useContact()
   const [initialValues, setInitialValues] = useState<IContact>({
     id:0,
@@ -37,14 +38,12 @@ export default function AddContact() {
   const handleSubmit = async (values:IContact,formikHelpers:FormikHelpers<IContact>)=>{
     try {
       setLoading(true);
-      const storage = new LocalStorage()
-      const session = await storage.getSession()
-      if (!session) return
+      if (!user)return
       if (id && id !== '0') {
-        const response = await updateContact(session.token,values)
+        const response = await updateContact(values)
         updateContactStore(response)
       } else {
-        const response = await addContact(session.token,{...values,userId:Number(session.id)})
+        const response = await addContact({...values,userId:Number(user.id)})
         addContactStore(response)
       }
       formikHelpers.resetForm()

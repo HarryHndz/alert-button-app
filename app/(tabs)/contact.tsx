@@ -14,7 +14,6 @@ import { Box } from '@/components/ui/box';
 import { IContact } from '@/data/interfaces/IContact';
 import { useContact } from '@/hooks/useContact';
 import { deleteContact } from '@/service/contactService';
-import LocalStorage from '@/utils/storage';
 import { router } from 'expo-router';
 import { EditIcon, PlusIcon, TrashIcon } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
@@ -46,10 +45,8 @@ export default function Contact() {
 
   const handleDeleteContact = async()=>{
     try {
-      const storage = new LocalStorage()
-      const session = await storage.getSession()
-      if (!session || !contactSelected) return
-      await deleteContact(session.token,contactSelected.id)
+      if (!contactSelected) return
+      await deleteContact(contactSelected.id)
       deleteContactStore(contactSelected.id)
       setContactSelected(null)
       handleCloseOptions()
