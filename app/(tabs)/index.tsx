@@ -1,4 +1,5 @@
 import { ButtonAlert } from '@/components/Home/ButtonAlert';
+import { Loader } from '@/components/Loader';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { AuthContext } from '@/context/AuthContext';
@@ -11,7 +12,7 @@ import { newAlert } from '@/service/userService';
 import * as Location from 'expo-location';
 import { Client, Message } from 'paho-mqtt';
 import { use, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 
 const brokerHost = process.env.EXPO_PUBLIC_BROKER_HOST ?? ''
 const port = Number(process.env.EXPO_PUBLIC_PORT) ?? 0
@@ -20,7 +21,7 @@ const topic = process.env.EXPO_PUBLIC_TOPIC ?? ''
 export default function HomeScreen() {
   const {user} = use(AuthContext)
   const {contacts,setContactsStore} = useContact()
-  const {isLoading,error} = useFetch<IContact[]>({
+  const {isLoading,error} = useFetch<IContact>({
     fetcher:(signal)=>getContacts(user?.id ?? 0,signal),
     onSuccess:setContactsStore,
     immediate:true
@@ -146,13 +147,7 @@ export default function HomeScreen() {
   },[location,client,isConnected,user])
 
 
-  if (isLoading) {
-    return(
-      <Box className='flex-1 items-center justify-center'>
-       <ActivityIndicator size='large' color='white' />
-      </Box>
-    )
-  }
+  if (isLoading) return <Loader />
 
   return (
     <Box className="flex-1 bg-neutral-900 w-full h-full justify-center items-center">

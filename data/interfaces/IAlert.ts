@@ -8,3 +8,8 @@ export interface IAlert {
 }
 
 export interface IAlertGeolocation extends Pick<IAlert,'location_lat' | 'location_lng'>{}
+
+export interface IAlerts extends Omit<IAlert,'url'>{
+  date:Date
+  key:number
+}
