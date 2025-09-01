@@ -1,6 +1,6 @@
-# 🚨 Alert Button App
+# 🚨 SafePulse App
 
-Una aplicación móvil multiplataforma para gestión de contactos de emergencia y alertas en tiempo real con integración MQTT y mapas interactivos.
+Una aplicación móvil multiplataforma para gestión de contactos de emergencia y alertas en tiempo real con integración MQTT y mapa para mostrar la ubicación de los contactos que generen alertas.
 
 ## 📱 Características
 
@@ -8,12 +8,12 @@ Una aplicación móvil multiplataforma para gestión de contactos de emergencia 
 - Sistema de login y registro de usuarios
 - Gestión de sesiones seguras
 - Cambio de contraseñas
-- Perfiles de usuario personalizables
+- Perfiles de usuario
 
 ### 👥 Gestión de Contactos
 - Agregar, editar y eliminar contactos de emergencia
 - Búsqueda por nombre o apellido
-- Almacenamiento local seguro con zustand
+- Almacenamiento local seguro con contex
 - Interfaz intuitiva con acciones contextuales
 
 ### 🗺️ Mapas Interactivos
@@ -25,9 +25,8 @@ Una aplicación móvil multiplataforma para gestión de contactos de emergencia 
 
 ### 📡 Comunicación en Tiempo Real
 - Conexión MQTT para alertas de emergencia
-- Suscripción a tópicos específicos por ID
+- Suscripción a tópicos específicos por ID de usuarios
 - Recepción de coordenadas GPS en tiempo real
-- Manejo de conexiones perdidas y reconexión
 
 ### 🎨 Interfaz de Usuario
 - Diseño moderno con Tailwind CSS
@@ -50,7 +49,7 @@ Una aplicación móvil multiplataforma para gestión de contactos de emergencia 
 - **Google Maps API** - Servicios de mapas
 
 ### Estado y Comunicación
-- **Zustand** - Gestión de estado global
+- **Context** - Gestión de estado global
 - **Paho MQTT** - Cliente MQTT para comunicación
 - **Expo Router** - Navegación y enrutamiento
 
@@ -120,18 +119,17 @@ npm run build
 
 ### 2. Gestión de Contactos
 - **Agregar**: Toca el botón "+" en la pantalla de contactos
-- **Editar**: Mantén presionada una tarjeta de contacto
-- **Eliminar**: Usa el menú contextual de cada contacto
+- **Editar y Eliminar**: Mantén presionada una tarjeta de contacto
 - **Buscar**: Utiliza el campo de búsqueda para filtrar
 
 ### 3. Visualización de Mapas
 - Navega a la pestaña de mapas
 - Visualiza tu ubicación actual
-- Recibe alertas en tiempo real vía MQTT
+- Recibe alertas en tiempo real por sms, con un link para abrir la app y llevarte al mapa.
 - Selecciona ubicaciones tocando el mapa
 
 ### 4. Configuración MQTT
-- Configura tu broker MQTT en `app/auth/(tabs)/map.tsx`
+- Configura tu broker MQTT
 - Ajusta el tópico y credenciales según tu configuración
 - Monitorea el estado de conexión con el indicador visual
 
@@ -139,25 +137,57 @@ npm run build
 
 ```
 alert-button-app/
-├── app/                    # Páginas de la aplicación (Expo Router)
-│   ├── auth/              # Rutas autenticadas
-│   │   ├── (tabs)/        # Navegación por pestañas
-│   │   ├── account/       # Gestión de cuenta
-│   │   └── addcontact/    # Agregar/editar contactos
-│   ├── index.tsx          # Página principal
-│   └── register.tsx       # Registro de usuarios
-├── components/             # Componentes reutilizables
-│   ├── Contact/           # Componentes de contactos
-│   ├── Map/               # Componentes de mapas
-│   └── ui/                # Sistema de diseño
-├── constants/              # Configuraciones y constantes
-├── data/                   # Interfaces y tipos de datos
-├── hooks/                  # Hooks personalizados
-├── service/                # Servicios de API y MQTT
-├── store/                  # Estado global (Zustand)
-├── types/                  # Tipos TypeScript
-├── utils/                  # Utilidades y helpers
-└── validation/             # Validaciones de formularios
+├── app/                        # Páginas y rutas principales (Expo Router)
+│   ├── _layout.tsx             # Layout principal
+│   ├── login.tsx               # Pantalla de login
+│   ├── register.tsx            # Pantalla de registro
+│   ├── (tabs)/                 # Navegación por pestañas
+│   │   ├── _layout.tsx         # Layout de tabs
+│   │   ├── contact.tsx         # Pantalla de contactos
+│   │   ├── index.tsx           # Home principal
+│   │   ├── map.tsx             # Pantalla de mapa
+│   ├── account/                # Sección de cuenta de usuario
+│   │   ├── _layout.tsx         # Layout de cuenta
+│   │   ├── alerts.tsx          # Alertas del usuario
+│   │   ├── index.tsx           # Perfil de usuario
+│   │   └── password.tsx        # Cambio de contraseña
+│   ├── addcontact/             # Sección para agregar/editar contactos
+│   │   ├── _layout.tsx         # Layout de agregar contacto
+│   │   └── [id].tsx            # Formulario de contacto (dinámico)
+├── assets/                     # Recursos estáticos (imágenes, fuentes)
+│   ├── fonts/
+│   └── images/
+├── components/                 # Componentes reutilizables
+│   ├── ButtonLoader.tsx
+│   ├── HapticTab.tsx
+│   ├── HeaderMenu.tsx
+│   ├── InputSearch.tsx
+│   ├── Loader.tsx
+│   ├── MapboxMapWeb.tsx
+│   ├── MapGoogleWeb.tsx
+│   ├── SplashScreen.tsx
+│   ├── ThemedInput.tsx
+│   ├── ToastError.tsx
+│   ├── Account/
+│   ├── Alerts/
+│   ├── Contact/
+│   ├── Home/
+│   ├── Map/
+│   └── ui/                     # Sistema de diseño y utilidades UI
+├── constants/                  # Configuraciones y constantes globales
+├── context/                    # Contextos de React (Auth, Contactos)
+├── data/                       # Interfaces, tipos y validaciones
+│   ├── interfaces/
+│   ├── types/
+│   └── validations/
+├── hooks/                      # Hooks personalizados
+├── service/                    # Servicios de API, autenticación y contactos
+├── utils/                      # Utilidades y helpers
+├── app.json                    # Configuración de Expo
+├── package.json                # Dependencias y scripts
+├── tailwind.config.js          # Configuración de Tailwind CSS
+├── tsconfig.json               # Configuración de TypeScript
+└── README.md                   # Documentación principal
 ```
 
 ## 🔧 Configuración
@@ -165,26 +195,18 @@ alert-button-app/
 ### Variables de Entorno
 ```env
 # API
-API_BASE_URL=https://tu-api.com
-API_TIMEOUT=10000
+EXPO_PUBLIC_URL_SERVER=https://tu-api.com
+EXPO_PUBLIC_PORT=1000
 
 # MQTT
-MQTT_BROKER_HOST=192.168.1.70
-MQTT_BROKER_PORT=8083
-MQTT_TOPIC=emergency/location
+EXPO_PUBLIC_BROKER_HOST=192.168.1.70
+EXPO_PUBLIC_PORT=8083
+EXPO_PUBLIC_TOPIC=emergency/location
 
 # Mapas
-MAPBOX_ACCESS_TOKEN=tu_token_mapbox
-GOOGLE_MAPS_API_KEY=tu_key_google_maps
+EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN=tu_token_mapbox
 ```
 
-### Configuración MQTT
-```typescript
-// app/auth/(tabs)/map.tsx
-const topic = 'emergency/location';
-const brokerHost = "192.168.1.70";
-const port = 8083;
-```
 
 ## 📊 API Endpoints
 
@@ -202,7 +224,8 @@ const port = 8083;
 ### Usuarios
 - `GET /users/profile` - Obtener perfil
 - `PUT /users/profile` - Actualizar perfil
-
+- `POST /alerts` - Crear una alerta 
+- `POST /alerts/user/:id` - Obtener las alertas de un usuario
 ## 🧪 Testing
 
 ```bash
@@ -245,32 +268,17 @@ expo build:web
 npx serve web-build
 ```
 
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 📝 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 🆘 Soporte
-
-- **Issues**: [GitHub Issues](https://github.com/tu-usuario/alert-button-app/issues)
-- **Documentación**: [Wiki del proyecto](https://github.com/tu-usuario/alert-button-app/wiki)
-- **Contacto**: tu-email@ejemplo.com
 
 ## 🙏 Agradecimientos
 
 - [Expo](https://expo.dev/) por la plataforma de desarrollo
 - [React Native](https://reactnative.dev/) por el framework
-- [Zustand](https://github.com/pmndrs/zustand) por la gestión de estado
 - [Tailwind CSS](https://tailwindcss.com/) por los estilos
 - [Mapbox](https://www.mapbox.com/) y [Google Maps](https://developers.google.com/maps) por los servicios de mapas
 
 ---
 
-**Desarrollado con ❤️ para mantener a las personas seguras en emergencias**
+**Proyecto universitario, para la asignatura Desarrollo para Dispositivos Inteligentes**
+**Contribuidores:**
+**Harry Hernández Arias**
+**Leonardo Daniel Chan Mendez**
