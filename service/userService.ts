@@ -44,6 +44,7 @@ export const newAlert = async (data:IAlert) => {
 export const getAlerts = async(userId:number,signal:AbortSignal,page:number):Promise<IAlerts[]>=>{
   try {
     const response = await api.get(`alerts/user/${userId}`, { signal ,params:{page}})
+    console.log('alertas respuesta',response.data)
     const dataAlert: IAlerts[] = response.data.map((alert:any)=>({
       location_lat: alert.location_lat,
       location_lng: alert.location_lng,
@@ -55,6 +56,7 @@ export const getAlerts = async(userId:number,signal:AbortSignal,page:number):Pro
     }))
     return dataAlert
   } catch (error) {
+    console.log('Error al obtener alertas', error)
     throw error
   }
 }

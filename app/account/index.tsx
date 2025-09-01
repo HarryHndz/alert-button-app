@@ -6,7 +6,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { useErrorToast } from "@/hooks/useErrorToast";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Lock, LogOut } from 'lucide-react-native';
+import { AlertCircle, Lock, LogOut } from 'lucide-react-native';
 import { use } from "react";
 import { Text } from "react-native";
 
@@ -52,6 +52,11 @@ export default function DetailScreen() {
           handleAction={() => router.navigate('/account/password')}
           icon={<Lock size={25} color='white' />}
           label="Cambiar contraseña"
+        />
+        <ActionAccount
+          handleAction={() => router.navigate('/account/alerts')}
+          icon={<AlertCircle size={25} color='white' />}
+          label="Alertas creadas"
         />
      </Box>
     </Box>

@@ -14,6 +14,7 @@ import { Box } from '@/components/ui/box';
 import { IContact } from '@/data/interfaces/IContact';
 import { useContact } from '@/hooks/useContact';
 import { deleteContact } from '@/service/contactService';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { EditIcon, PlusIcon, TrashIcon } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
@@ -73,7 +74,20 @@ export default function Contact() {
         </TouchableOpacity>
       </Box>
       <Box className='flex flex-col gap-5 mt-5 px-5'>
-        <ContactList contacts={contactsFiltered} handlePress={handleShowOptions} />
+        {
+          contactsFiltered.length === 0  ? (
+            <Box className='flex-col items-center justify-center'>
+              <Image
+                source={require('@/assets/images/empty_data.svg')} 
+                style={{ width:'50%', height:200 }}
+                contentFit='contain'
+              />
+              <Text className='text-white'>No hay contactos registrados</Text>
+            </Box>
+          ) : (
+            <ContactList contacts={contactsFiltered} handlePress={handleShowOptions} />
+          )
+        }
         <Actionsheet isOpen={showOptions} onClose={handleCloseOptions} snapPoints={[20]}>
           <ActionsheetBackdrop />
           <ActionsheetContent>

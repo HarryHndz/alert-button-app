@@ -14,6 +14,7 @@ export const useFetch =<T>({fetcher,onSuccess,immediate=true}:IPropsUseFetch<T>)
   const abortRef = useRef<AbortController | null>(null)
   
   const handleExecute = useCallback(async()=>{
+    console.log("useFetch -> handleExecute")
     try {
       if (abortRef.current) {
         abortRef.current.abort()
@@ -37,11 +38,12 @@ export const useFetch =<T>({fetcher,onSuccess,immediate=true}:IPropsUseFetch<T>)
   },[fetcher,onSuccess,data,currentPage])
 
   useEffect(()=>{
+    console.log("useFetch -> useEffect")
     if (immediate) handleExecute()
     return()=>{
       abortRef.current?.abort()
     }
-  },[handleExecute,immediate])
+  },[])
 
   return{
     isLoading,

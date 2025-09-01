@@ -4,9 +4,9 @@ import { Box } from "@/components/ui/box";
 import { AuthContext } from "@/context/AuthContext";
 import { useFetch } from "@/hooks/useFetch";
 import { getAlerts } from "@/service/userService";
+import { Image } from "expo-image";
 import { use } from "react";
-import { Text } from "react-native";
-import { FlatList } from "react-native-reanimated/lib/typescript/Animated";
+import { FlatList, Text } from "react-native";
 
 
 export default function Alert() {
@@ -19,7 +19,16 @@ export default function Alert() {
   if (isLoading) return <Loader />
 
   if (error) {
-    return(<Text>No hay alertas</Text>) 
+    return(
+      <Box className="flex-1 items-center justify-center gap-5">
+        <Image 
+          source={require('@/assets/images/error_image.svg')} 
+          style={{ width:'50%', height:200 }}
+          contentFit='contain'
+        />
+        <Text className="text-white text-xl font-semibold">No hay alertas</Text>
+      </Box>
+    ) 
   }
   
   return(
