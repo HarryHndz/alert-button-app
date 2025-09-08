@@ -13,7 +13,7 @@ export const ButtonLoader = ({isSubmitting,handleSubmit,text}:TButtonLoaderProps
       isSubmitting ? (
       <>
         <ButtonSpinner color='black' />
-        <ButtonText>Enviando...</ButtonText>
+        <ButtonText testID='button-loader-text'>Enviando...</ButtonText>
       </>
       ) : (
         <ButtonText>{text}</ButtonText>
