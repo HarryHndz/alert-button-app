@@ -56,21 +56,21 @@ export default function HomeScreen() {
           timeInterval:5000,
           distanceInterval:1,
         },
-        (location)=>{
-          console.log("en la ubicación")
+        async(location)=>{
           if (isFirst && sendAlertLocation) {
-            sendAlertLocation(location).catch((error)=>{
-              console.log('error al enviar la alerta',error)
-              setErrorMsg('Error al enviar la alerta')
-            })
+            await sendAlertLocation(location)
             isFirst = false
           }
           setLocation(location)
+        },
+        (error)=>{
+          console.log('error',error)
+          setErrorMsg('Error al obtener la ubicación')
         }
       )
     } catch (error) {
       console.log('error',error)
-      setErrorMsg('Error al obtener la ubicación')
+      setErrorMsg('Error, Intentar nuevamente')
     }
   }
   
@@ -81,17 +81,18 @@ export default function HomeScreen() {
       mqttClient.onConnectionLost = (responseObject) => {
         console.log("Conexión perdida:", responseObject.errorMessage);
         setIsConnected(false);
+        setSending(false);
       };
       mqttClient.connect({
-        onSuccess: async() => {
+        onSuccess:() => {
           console.log("Conectado al broker");
           setIsConnected(true);
           mqttClient.subscribe(`${topic}/${user.id}`);
-          await handleWatchingPosition()
         },
         onFailure: (err) => {
           console.log("Error al conectar", err);
           handleStopWatchingPosition()
+          setSending(false)
         },
         useSSL: false,
       });
@@ -99,13 +100,14 @@ export default function HomeScreen() {
       setClient(mqttClient);
     } catch (error) {
       console.log('error en handleConnectBroker',error)
+      setSending(false)
     }
   }
 
   const handleNewAlert = async () => {
     try {
+      if (!user) return
       setSending(true)
-      if (!user) return setSending(false)
       await handleWatchingPosition(async (location)=>{
         const payload: IAlert = {
           location_lat: location.coords.latitude,
@@ -118,11 +120,9 @@ export default function HomeScreen() {
         await newAlert(payload)
         handleConnectBroker()
       })
-      console.log("despues de handleWatchingPosition")
     } catch (error) {
       console.log('error',error)
       setErrorMsg('Error al enviar la alerta')
-    } finally {
       setSending(false)
     }
   }
@@ -133,6 +133,7 @@ export default function HomeScreen() {
       client.disconnect()
       handleStopWatchingPosition()
       setIsConnected(false)
+      setSending(false)
     }
   }
 
